@@ -1,0 +1,33 @@
+[
+    { "item": "Rice",    "date": "2024-04-10", "time_slot": "lunch",   "quantity": 80, "actual": 75 },
+    { "item": "Rice",    "date": "2024-04-11", "time_slot": "lunch",   "quantity": 85, "actual": 82 },
+    { "item": "Rice",    "date": "2024-04-12", "time_slot": "lunch",   "quantity": 78, "actual": 74 },
+    { "item": "Rice",    "date": "2024-04-13", "time_slot": "lunch",   "quantity": 90, "actual": 88 },
+    { "item": "Rice",    "date": "2024-04-14", "time_slot": "lunch",   "quantity": 88, "actual": 85 },
+    { "item": "Rice",    "date": "2024-04-15", "time_slot": "lunch",   "quantity": 84, "actual": 80 },
+    { "item": "Rice",    "date": "2024-04-16", "time_slot": "lunch",   "quantity": 86, "actual": 84 },
+
+    { "item": "Chapati", "date": "2024-04-10", "time_slot": "morning", "quantity": 60, "actual": 58 },
+    { "item": "Chapati", "date": "2024-04-11", "time_slot": "morning", "quantity": 58, "actual": 55 },
+    { "item": "Chapati", "date": "2024-04-12", "time_slot": "morning", "quantity": 62, "actual": 60 },
+    { "item": "Chapati", "date": "2024-04-13", "time_slot": "morning", "quantity": 65, "actual": 63 },
+    { "item": "Chapati", "date": "2024-04-14", "time_slot": "morning", "quantity": 59, "actual": 57 },
+    { "item": "Chapati", "date": "2024-04-15", "time_slot": "morning", "quantity": 61, "actual": 59 },
+    { "item": "Chapati", "date": "2024-04-16", "time_slot": "morning", "quantity": 63, "actual": 60 },
+
+    { "item": "Dal",     "date": "2024-04-10", "time_slot": "evening", "quantity": 50, "actual": 48 },
+    { "item": "Dal",     "date": "2024-04-11", "time_slot": "evening", "quantity": 55, "actual": 53 },
+    { "item": "Dal",     "date": "2024-04-12", "time_slot": "evening", "quantity": 48, "actual": 44 },
+    { "item": "Dal",     "date": "2024-04-13", "time_slot": "evening", "quantity": 60, "actual": 57 },
+    { "item": "Dal",     "date": "2024-04-14", "time_slot": "evening", "quantity": 52, "actual": 50 },
+    { "item": "Dal",     "date": "2024-04-15", "time_slot": "evening", "quantity": 54, "actual": 51 },
+    { "item": "Dal",     "date": "2024-04-16", "time_slot": "evening", "quantity": 57, "actual": 55 },
+
+    { "item": "Sabzi",   "date": "2024-04-10", "time_slot": "lunch",   "quantity": 35, "actual": 32 },
+    { "item": "Sabzi",   "date": "2024-04-11", "time_slot": "lunch",   "quantity": 38, "actual": 36 },
+    { "item": "Sabzi",   "date": "2024-04-12", "time_slot": "lunch",   "quantity": 33, "actual": 30 },
+    { "item": "Sabzi",   "date": "2024-04-13", "time_slot": "lunch",   "quantity": 40, "actual": 38 },
+    { "item": "Sabzi",   "date": "2024-04-14", "time_slot": "lunch",   "quantity": 37, "actual": 35 },
+    { "item": "Sabzi",   "date": "2024-04-15", "time_slot": "lunch",   "quantity": 36, "actual": 34 },
+    { "item": "Sabzi",   "date": "2024-04-16", "time_slot": "lunch",   "quantity": 39, "actual": 37 }
+]

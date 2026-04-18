@@ -1,0 +1,98 @@
+[
+  {
+    "id": "shop_001",
+    "name": "Annapoorna Canteen",
+    "type": "South Indian",
+    "location": "Block A – Ground Floor",
+    "rating": 4.5,
+    "crowd_level": "High",
+    "best_time": "Before 12:30 PM",
+    "active": true,
+    "menu": [
+      { "item": "Rice",   "price": 30, "time_slots": ["lunch", "evening"] },
+      { "item": "Idli",   "price": 15, "time_slots": ["morning", "lunch"] },
+      { "item": "Sambar", "price": 10, "time_slots": ["morning", "lunch", "evening"] }
+    ],
+    "sample_history": {
+      "Rice_lunch":    [85, 90, 78, 95, 88, 82, 87],
+      "Idli_morning":  [60, 65, 55, 70, 62, 58, 63],
+      "Sambar_lunch":  [80, 85, 75, 90, 82, 78, 83]
+    },
+    "weekly_waste_reduced_kg": 14.2,
+    "efficiency_rate": 88.5,
+    "total_prepared": 1820,
+    "total_consumed": 1612
+  },
+  {
+    "id": "shop_002",
+    "name": "Punjabi Dhaba",
+    "type": "North Indian",
+    "location": "Block B – First Floor",
+    "rating": 4.2,
+    "crowd_level": "Medium",
+    "best_time": "1:00 PM – 2:00 PM",
+    "active": true,
+    "menu": [
+      { "item": "Chapati", "price": 8,  "time_slots": ["morning", "lunch", "evening"] },
+      { "item": "Dal",     "price": 25, "time_slots": ["lunch", "evening"] },
+      { "item": "Paneer",  "price": 50, "time_slots": ["lunch", "evening"] }
+    ],
+    "sample_history": {
+      "Chapati_morning": [60, 58, 62, 65, 59, 61, 63],
+      "Dal_lunch":       [50, 55, 48, 60, 52, 54, 57],
+      "Paneer_evening":  [30, 32, 28, 35, 31, 29, 33]
+    },
+    "weekly_waste_reduced_kg": 9.8,
+    "efficiency_rate": 84.1,
+    "total_prepared": 1350,
+    "total_consumed": 1135
+  },
+  {
+    "id": "shop_003",
+    "name": "Green Bowl Café",
+    "type": "Healthy / Continental",
+    "location": "Library Wing",
+    "rating": 4.7,
+    "crowd_level": "Low",
+    "best_time": "Anytime",
+    "active": true,
+    "menu": [
+      { "item": "Salad",   "price": 40, "time_slots": ["morning", "lunch"] },
+      { "item": "Sandwich","price": 35, "time_slots": ["morning", "lunch", "evening"] },
+      { "item": "Juice",   "price": 30, "time_slots": ["morning", "lunch", "evening"] }
+    ],
+    "sample_history": {
+      "Salad_morning":    [25, 28, 22, 30, 26, 24, 27],
+      "Sandwich_lunch":   [40, 42, 38, 45, 41, 39, 43],
+      "Juice_morning":    [55, 58, 50, 62, 57, 52, 56]
+    },
+    "weekly_waste_reduced_kg": 5.3,
+    "efficiency_rate": 91.2,
+    "total_prepared": 980,
+    "total_consumed": 894
+  },
+  {
+    "id": "shop_004",
+    "name": "Spice Route",
+    "type": "Street Food",
+    "location": "Main Gate Area",
+    "rating": 4.0,
+    "crowd_level": "Very High",
+    "best_time": "Avoid 1 PM – 2 PM",
+    "active": true,
+    "menu": [
+      { "item": "Samosa",    "price": 12, "time_slots": ["morning", "evening"] },
+      { "item": "Chaat",     "price": 25, "time_slots": ["lunch", "evening"] },
+      { "item": "Tea",       "price": 10, "time_slots": ["morning", "lunch", "evening"] }
+    ],
+    "sample_history": {
+      "Samosa_morning": [90, 95, 85, 100, 92, 88, 94],
+      "Chaat_evening":  [70, 75, 65, 80, 72, 68, 74],
+      "Tea_morning":    [110, 115, 105, 120, 112, 108, 114]
+    },
+    "weekly_waste_reduced_kg": 18.6,
+    "efficiency_rate": 79.4,
+    "total_prepared": 2240,
+    "total_consumed": 1779
+  }
+]
