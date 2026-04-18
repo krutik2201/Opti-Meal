@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# Opti-Meal
-“Skip the queue, order smarter with OptiMeal.”
-=======
 # OptiMeal – Food Demand & Waste Optimization System
 
 A clean, well-structured Flask backend for predicting daily food demand and minimizing kitchen waste. Built for small-scale kitchens: canteens, hostels, and NGOs.
