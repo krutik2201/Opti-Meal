@@ -1,4 +1,4 @@
-# 🚀 OptiMeal – Smart Queue & Kitchen Intelligence System
+# 🚀 OptiMeal – Smart Queue & Kitchen Intelligence System Campus Food
 
 ---
 
