@@ -78,6 +78,16 @@ This is NOT a food ordering app.
 
 ---
 
+## 🎬 Demo Flow
+
+1. Login as Student
+2. Place an order
+3. Login as Vendor
+4. Accept → Prepare → Ready
+5. View Admin dashboard
+
+---
+
 ## 👨‍💻 Author
 
 Krutik Devpura
