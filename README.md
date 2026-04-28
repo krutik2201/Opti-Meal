@@ -78,13 +78,12 @@ This is NOT a food ordering app.
 
 ---
 
-## 🎬 Demo Flow
+## 👉 Demo Flow
 
 1. Login as Student
-2. Place an order
+2. Place order
 3. Login as Vendor
-4. Accept → Prepare → Ready
-5. View Admin dashboard
+4. Process order
 
 ---
 
