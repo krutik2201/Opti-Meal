@@ -252,7 +252,7 @@ function StudentDashboard({ auth, onLogout }) {
       </header>
 
       {/* Content */}
-      <main className="student-content">{renderContent()}</main>
+      <main className="student-content" style={{ paddingBottom: '120px' }}>{renderContent()}</main>
 
       {/* Item detail overlay */}
       {detailItem && (

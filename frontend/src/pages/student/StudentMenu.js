@@ -199,7 +199,7 @@ function StudentMenu({ cart, onNavigate, onAddToCart, updateQty, favorites, onTo
           <button style={{ marginTop: '1rem', background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.85rem' }} onClick={() => { setCategory('All'); setFastOnly(false); setSpeedMode('all'); }}>Clear filters</button>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '8rem' }}>
           {items.map(item => {
             const qty   = getCartQty(item.id);
             const pColor = prepColor(item.prepMins);
