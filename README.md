@@ -2,7 +2,7 @@
 
 ## 🚀 Problem
 
-College canteens face:
+College canteens suffer from:
 * Long queues
 * Uncertain wait times
 * Kitchen overload
@@ -16,24 +16,24 @@ OptiMeal is a:
 👉 **Smart Queue & Kitchen Intelligence System**
 
 That:
-* Reduces waiting time
 * Predicts rush
-* Guides vendors in real time
+* Controls ordering slots
+* Guides vendors in real-time
 
 ---
 
-## 🧩 Features
+## 🧩 Key Features
 
 ### 👨‍🎓 Student
-* Order food with time slots
+* Order with pickup time slots
 * See queue status
 * Track order
 
 ---
 
 ### 👨‍🍳 Vendor
-* Accept → Prepare → Ready system
-* Kitchen load monitoring
+* Accept → Prepare → Ready workflow
+* Kitchen load indicator
 * Smart alerts
 
 ---
@@ -46,9 +46,9 @@ That:
 
 ## ⚙️ Tech Stack
 
-* React
-* Flask
-* Tailwind CSS (CSS Variables styling)
+* React (Frontend)
+* Flask (Backend)
+* Tailwind CSS
 
 ---
 
@@ -75,11 +75,6 @@ python app.py
 This is NOT a food ordering app.
 
 👉 It is a **Time & Queue Optimization System**
-
----
-
-## 📸 Screenshots
-*(Add screenshots to the `/docs` folder if desired)*
 
 ---
 
