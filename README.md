@@ -1,11 +1,14 @@
-# 🔥 OptiMeal – Smart Queue & Kitchen Intelligence System
+# 🚀 OptiMeal – Smart Queue & Kitchen Intelligence System
 
-## 🚀 Problem
+---
 
-College canteens suffer from:
-* Long queues
-* Uncertain wait times
-* Kitchen overload
+## 🎯 Problem
+
+College canteens face:
+
+- Long queues  
+- Uncertain waiting times  
+- Kitchen overload during peak hours  
 
 ---
 
@@ -16,52 +19,75 @@ OptiMeal is a:
 👉 **Smart Queue & Kitchen Intelligence System**
 
 That:
-* Predicts rush
-* Controls ordering slots
-* Guides vendors in real-time
+
+- Controls demand using time slots  
+- Predicts rush before it happens  
+- Guides vendors in real-time  
+- Reduces waiting time  
 
 ---
 
-## 🧩 Key Features
+## ❗ What Makes It Different
+
+This is NOT a food ordering app.
+
+👉 It is a **Time & Uncertainty Control System**
+
+---
+
+## 🧩 Features
 
 ### 👨‍🎓 Student
-* Order with pickup time slots
-* See queue status
-* Track order
+- Order with pickup slots  
+- View queue status  
+- Get estimated ready time  
+- Track order  
 
 ---
 
 ### 👨‍🍳 Vendor
-* Accept → Prepare → Ready workflow
-* Kitchen load indicator
-* Smart alerts
+- Accept → Prepare → Ready workflow  
+- Kitchen load indicator  
+- Smart alerts (rush prediction)  
 
 ---
 
 ### 🧑‍💼 Admin
-* Dashboard overview
-* System monitoring
+- Monitor system  
+- View orders  
+- Track performance  
+
+---
+
+## 🔄 Demo Flow (VERY IMPORTANT)
+
+1. Login as Student  
+2. Place an order  
+3. Login as Vendor  
+4. Accept → Prepare → Ready  
+5. Login as Admin  
+6. View dashboard  
 
 ---
 
 ## ⚙️ Tech Stack
 
-* React (Frontend)
-* Flask (Backend)
-* Tailwind CSS
+- React  
+- Flask  
+- Tailwind CSS  
 
 ---
 
 ## ▶️ How to Run
 
-### Frontend:
+### Frontend
 ```bash
 cd frontend
 npm install
 npm start
 ```
 
-### Backend:
+### Backend
 ```bash
 cd backend
 pip install -r requirements.txt
@@ -72,18 +98,8 @@ python app.py
 
 ## 🎯 Core Idea
 
-This is NOT a food ordering app.
-
-👉 It is a **Time & Queue Optimization System**
-
----
-
-## 👉 Demo Flow
-
-1. Login as Student
-2. Place order
-3. Login as Vendor
-4. Process order
+👉 Smart Queue & Kitchen Intelligence  
+👉 Not just ordering  
 
 ---
 
