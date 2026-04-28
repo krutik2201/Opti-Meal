@@ -1,4 +1,28 @@
+# Dependencies
 node_modules/
-__pycache__/
+.pnp
+.pnp.js
+venv/
+env/
 .env
-*.pyc
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build outputs
+build/
+dist/
+coverage/
+
+# IDE and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

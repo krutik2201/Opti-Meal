@@ -1,0 +1,41 @@
+/* UI Polishing & Layout Fixes */
+
+main {
+  padding: 2rem;
+}
+
+.student-content {
+  padding: 1.5rem;
+}
+
+.adm-main {
+  padding: 2rem;
+}
+
+/* Ensure all buttons have hover effects and are clickable */
+button {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Basic surface card padding standardization */
+.surface-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}

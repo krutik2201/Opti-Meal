@@ -81,10 +81,10 @@ export const HOURLY_ORDERS = [
 ];
 
 export const SMART_ALERTS = [
-  { id: 'a1', type: 'danger',  icon: '🚨', title: 'High Complaints',    body: 'Quick Bites (Delhi University) has 14 complaints this week. Investigate.', time: '10 min ago' },
-  { id: 'a2', type: 'warning', icon: '⚠️', title: 'Churn Risk',         body: 'Manipal University usage dropped 40% this week. Immediate action needed.',  time: '1 hr ago'   },
-  { id: 'a3', type: 'warning', icon: '📉', title: 'Low Activity',       body: 'Amity University has been inactive for 4 days. Subscription at risk.',       time: '3 hrs ago'  },
-  { id: 'a4', type: 'info',    icon: '📈', title: 'Growth Milestone',   body: 'IIT Bombay crossed 500 orders/day for the first time. 🎉',                  time: '5 hrs ago'  },
+  { id: 'a1', type: 'danger',  icon: '🚨', title: 'Critical Delay Spike',    body: 'Delhi University (Green Bowl) wait times exceeded 25 mins. Recovery mode active.', time: '2 min ago' },
+  { id: 'a2', type: 'warning', icon: '⚠️', title: 'Kitchen Overload',         body: 'Campus Café hitting 95% load capacity consistently this hour.',  time: '15 min ago'   },
+  { id: 'a3', type: 'warning', icon: '📉', title: 'Low Throughput',       body: 'Amity University has processed 0 orders during peak lunch hour. Investigate.',       time: '1 hr ago'  },
+  { id: 'a4', type: 'info',    icon: '📈', title: 'Optimization Milestone',   body: 'Platform-wide wait times reduced by 14% using Workload Smoothing today.',                  time: '5 hrs ago'  },
   { id: 'a5', type: 'info',    icon: '💰', title: 'Revenue Target',     body: 'Platform hit ₹78,000 MRR — 8% above April forecast.',                       time: '6 hrs ago'  },
 ];
 

@@ -1,420 +1,211 @@
 import React, { useState, useEffect } from 'react';
-import { getShops, predictDemand, wasteAnalysis as analyzeWaste } from '../services/api';
+import { Routes, Route, Navigate, NavLink, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import VendorOverview from './vendor/VendorOverview';
+import VendorOrders from './vendor/VendorOrders';
+import VendorIntelligence from './vendor/VendorIntelligence';
+import VendorAlerts from './vendor/VendorAlerts';
+import VendorSettings from './vendor/VendorSettings';
 
-const DAY_LABELS = ['D-7', 'D-6', 'D-5', 'D-4', 'D-3', 'D-2', 'D-1'];
+// --- Shared Mock Data ---
+const MOCK_FAST_ORDERS = [
+  { id: '#OM-442', item: 'Masala Tea', qty: 3, timeWaiting: '1m', status: 'pending', emoji: '🍵' },
+  { id: '#OM-445', item: 'Samosa', qty: 5, timeWaiting: '0m', status: 'pending', emoji: '🥟' },
+  { id: '#OM-448', item: 'Sweet Lime', qty: 1, timeWaiting: '2m', status: 'preparing', emoji: '🍋' },
+];
 
-const STATUS_BADGE = {
-  'Excellent':           'badge-green',
-  'Good':                'badge-green',
-  'No Waste / Shortage': 'badge-blue',
-  'Moderate Waste':      'badge-yellow',
-  'High Waste':          'badge-red',
-};
+const MOCK_HEAVY_ORDERS = [
+  { id: '#OM-440', item: 'Chole Bhature', qty: 2, timeWaiting: '6m', status: 'preparing', emoji: '🫓' },
+  { id: '#OM-441', item: 'Pav Bhaji', qty: 1, timeWaiting: '4m', status: 'preparing', emoji: '🥘' },
+  { id: '#OM-447', item: 'Dal Rice', qty: 3, timeWaiting: '2m', status: 'pending', emoji: '🍛' },
+];
 
-/**
- * VendorDashboard
- * ----------------
- * Lets a vendor:
- *   1. Select their shop from a dropdown.
- *   2. Pick a menu item + time slot (auto-populated from shop data).
- *   3. Load sample history or enter custom values.
- *   4. Get a demand prediction + recommendation.
- *   5. Switch to Waste Analysis with actual consumption.
- *
- * Props:
- *   onBack() — return to RoleSelect
- */
+const MOMENTUM = [
+  { item: 'Samosa', trend: 'up', emoji: '📈', color: 'var(--yellow)' },
+  { item: 'Masala Tea', trend: 'stable', emoji: '➡️', color: 'var(--text-muted)' },
+  { item: 'Pav Bhaji', trend: 'down', emoji: '📉', color: 'var(--green)' },
+];
+
+const ALERTS = [
+  { id: 1, type: 'trigger', icon: '🔔', title: 'Start preparing Samosa now', desc: 'Peak expected in 8 minutes (15+ orders)' },
+  { id: 2, type: 'delay', icon: '⚠️', title: 'Delay risk in 5 minutes', desc: 'Heavy lane is backing up. Focus on Chole Bhature.' },
+  { id: 3, type: 'smoothing', icon: '🔄', title: 'Workload Smoothed', desc: 'Auto-moved 4 incoming orders from 12:30 to 12:40 slot to prevent overload.' },
+];
+
+const NAV_LINKS = [
+  { path: 'overview', icon: '📊', label: 'Dashboard' },
+  { path: 'orders', icon: '📦', label: 'Orders' },
+  { path: 'intelligence', icon: '🧠', label: 'Kitchen Intelligence' },
+  { path: 'alerts', icon: '🔔', label: 'Alerts & Insights' },
+  { path: 'settings', icon: '⚙️', label: 'Settings' },
+];
+
 function VendorDashboard({ auth, onLogout }) {
-  /* ── Shop selection ── */
-  const [shops,      setShops]      = useState([]);
-  const [shopsError, setShopsError] = useState('');
-  const [shopId,     setShopId]     = useState('');
-  const [shopObj,    setShopObj]    = useState(null);
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [activeFast, setActiveFast] = useState(MOCK_FAST_ORDERS);
+  const [activeHeavy, setActiveHeavy] = useState(MOCK_HEAVY_ORDERS);
+  const [alerts, setAlerts] = useState(ALERTS);
+  const [currentPace, setCurrentPace] = useState(5);
+  const [recommendedPace, setRecommendedPace] = useState(7);
+  
+  const location = useLocation();
 
-  /* ── Sub-nav ── */
-  const [view, setView] = useState('predict'); // 'predict' | 'waste'
+  const activeCount = activeFast.length + activeHeavy.length;
+  const maxCapacity = 15;
+  const computedLoad = Math.min(100, Math.round((activeCount / maxCapacity) * 100));
+  
+  let queueLevel = 'Low';
+  if (activeCount >= 10) queueLevel = 'High';
+  else if (activeCount >= 5) queueLevel = 'Medium';
 
-  /* ── Prediction form ── */
-  const [menuItem,  setMenuItem]  = useState('');
-  const [slot,      setSlot]      = useState('lunch');
-  const [history,   setHistory]   = useState(Array(7).fill(''));
-  const [loading,   setLoading]   = useState(false);
-  const [result,    setResult]    = useState(null);
-  const [formError, setFormError] = useState('');
+  const [kitchenLoad, setKitchenLoad] = useState(computedLoad);
 
-  /* ── Waste form ── */
-  const [wItem,     setWItem]     = useState('');
-  const [predicted, setPredicted] = useState('');
-  const [actual,    setActual]    = useState('');
-  const [wLoading,  setWLoading]  = useState(false);
-  const [wResult,   setWResult]   = useState(null);
-  const [wError,    setWError]    = useState('');
-
-  // Fetch shop list on mount
+  // Sync with Student orders from localStorage
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await getShops();
-        setShops(data);
-        if (data.length > 0) setShopId(data[0].id);
-      } catch (err) {
-        setShopsError(err.message || 'Could not load shops.');
-      }
-    })();
+    const poll = setInterval(() => {
+      const shared = JSON.parse(localStorage.getItem('optimeal_shared_orders') || '[]');
+      
+      // We only care about orders that aren't already processed out
+      shared.forEach(sharedOrder => {
+        // Simple heuristic: if it has > 2 items or has a heavy item, it's heavy
+        const isHeavy = sharedOrder.items.length > 2 || sharedOrder.items.some(i => ['Chole Bhature', 'Pav Bhaji', 'Dal Rice', 'Burger'].includes(i.name));
+        
+        // Convert to vendor format
+        const vendorFmt = {
+          id: sharedOrder.id,
+          item: sharedOrder.items.map(i => i.name).join(' + '),
+          qty: sharedOrder.items.reduce((sum, i) => sum + i.qty, 0),
+          timeWaiting: 'Just now',
+          status: sharedOrder.status.toLowerCase(),
+          emoji: sharedOrder.items[0]?.emoji || '📦'
+        };
+
+        // Check if we already have it in either list
+        setActiveFast(prev => {
+          if (!isHeavy && !prev.find(o => o.id === vendorFmt.id)) return [...prev, vendorFmt];
+          return prev;
+        });
+        setActiveHeavy(prev => {
+          if (isHeavy && !prev.find(o => o.id === vendorFmt.id)) return [...prev, vendorFmt];
+          return prev;
+        });
+      });
+    }, 1000);
+    return () => clearInterval(poll);
   }, []);
 
-  // Resolve full shop object when shopId changes
+  // Update load based on active orders, but still allow recovery mode to override
   useEffect(() => {
-    const found = shops.find((s) => s.id === shopId) || null;
-    setShopObj(found);
-    setMenuItem('');
-    setHistory(Array(7).fill(''));
-    setResult(null);
-    setFormError('');
-  }, [shopId, shops]);
-
-  // Auto-select first menu item when shop changes
-  useEffect(() => {
-    if (shopObj && shopObj.menu.length > 0) {
-      const first = shopObj.menu[0];
-      setMenuItem(first.item);
-      setSlot(first.time_slots[0] || 'lunch');
-    }
-  }, [shopObj]);
-
-  /* ── Load sample data from shop JSON ── */
-  const loadSampleData = () => {
-    if (!shopObj) return;
-    const key = `${menuItem}_${slot}`;
-    const hist = shopObj.sample_history[key];
-    if (hist) {
-      setHistory(hist.map(String));
-      setFormError('');
+    if (!recoveryMode) {
+      setKitchenLoad(computedLoad);
     } else {
-      setFormError(`No sample data for "${menuItem} / ${slot}". Try another combination.`);
+      setKitchenLoad(prev => Math.max(40, prev - 2));
     }
+  }, [computedLoad, recoveryMode]);
+
+  useEffect(() => {
+    const pTick = setInterval(() => {
+      setCurrentPace(prev => {
+        const delta = Math.floor(Math.random() * 3) - 1;
+        return Math.max(3, Math.min(10, prev + delta));
+      });
+    }, 6000);
+    return () => clearInterval(pTick);
+  }, []);
+
+  const advanceOrder = (lane, id) => {
+    const updateFn = prev => {
+      const order = prev.find(o => o.id === id);
+      if (!order) return prev;
+      
+      let nextStatus = '';
+      if (order.status === 'pending') nextStatus = 'preparing';
+      else if (order.status === 'preparing') nextStatus = 'ready';
+      else if (order.status === 'ready') nextStatus = 'completed';
+      
+      // Sync back to localStorage for student
+      const shared = JSON.parse(localStorage.getItem('optimeal_shared_orders') || '[]');
+      const updatedShared = shared.map(s => {
+        if (s.id === id) {
+           return { ...s, status: nextStatus.charAt(0).toUpperCase() + nextStatus.slice(1) };
+        }
+        return s;
+      });
+      localStorage.setItem('optimeal_shared_orders', JSON.stringify(updatedShared));
+
+      if (nextStatus === 'completed') return prev.filter(o => o.id !== id);
+      return prev.map(o => o.id === id ? { ...o, status: nextStatus } : o);
+    };
+    
+    if (lane === 'fast') setActiveFast(updateFn);
+    else setActiveHeavy(updateFn);
   };
 
-  /* ── When menu item changes, auto-update slot ── */
-  const handleMenuChange = (item) => {
-    setMenuItem(item);
-    const menuEntry = shopObj?.menu.find((m) => m.item === item);
-    if (menuEntry) setSlot(menuEntry.time_slots[0] || 'lunch');
-    setHistory(Array(7).fill(''));
-    setResult(null);
+  const toggleRecovery = () => {
+    setRecoveryMode(!recoveryMode);
   };
 
-  /* ── Prediction submit ── */
-  const handlePredict = async (e) => {
-    e.preventDefault();
-    setFormError('');
-    setResult(null);
-
-    const histNums = history.map(Number);
-    if (histNums.some((v) => isNaN(v) || v < 0)) {
-      setFormError('All 7 history values must be non-negative numbers. Use "Load Sample Data" to pre-fill.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const data = await predictDemand(menuItem, histNums, slot);
-      setResult(data);
-      // Pre-fill waste form with predicted quantity
-      setWItem(menuItem);
-      setPredicted(String(data.recommended_quantity));
-    } catch (err) {
-      setFormError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  const dismissAlert = (id) => {
+    setAlerts(prev => prev.filter(a => a.id !== id));
   };
 
-  /* ── Waste analysis submit ── */
-  const handleWaste = async (e) => {
-    e.preventDefault();
-    setWError('');
-    setWResult(null);
-    setWLoading(true);
-    try {
-      const data = await analyzeWaste(wItem.trim(), predicted, actual);
-      setWResult(data);
-    } catch (err) {
-      setWError(err.message);
-    } finally {
-      setWLoading(false);
-    }
-  };
+  const pendingCount = activeFast.filter(o => o.status === 'pending').length + activeHeavy.filter(o => o.status === 'pending').length;
+  const preparingCount = activeFast.filter(o => o.status === 'preparing').length + activeHeavy.filter(o => o.status === 'preparing').length;
 
-  /* ── Derived available time slots for selected item ── */
-  const availableSlots = shopObj?.menu.find((m) => m.item === menuItem)?.time_slots || ['morning', 'lunch', 'evening'];
+  const sharedProps = {
+    kitchenLoad, queueLevel, recoveryMode, toggleRecovery,
+    currentPace, recommendedPace,
+    activeFast, activeHeavy, advanceOrder,
+    alerts, dismissAlert, momentum: MOMENTUM,
+    pendingCount, preparingCount, activeCount
+  };
 
   return (
-    <div className="app-layout">
-      {/* ── Header ── */}
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--bg)', color: 'var(--text-primary)' }}>
       <Navbar userName={auth.userName} role={auth.role} onLogout={onLogout} />
-
-      <main className="page-content dashboard-page">
-        {/* Error loading shops */}
-        {shopsError && <div className="error-msg"><span>⚠️</span> {shopsError}</div>}
-
-        {/* ── Shop Selector ── */}
-        <div style={{ marginBottom: '2rem' }}>
-          <div className="page-header">
-            <div className="page-header-text">
-              <h1>Vendor Dashboard</h1>
-              <p>Select your shop, enter weekly sales, and get your preparation plan.</p>
-            </div>
+      
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        {/* SIDEBAR NAVIGATION */}
+        <aside style={{ width: '250px', background: '#0b101e', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', padding: '1.5rem 1rem' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem', paddingLeft: '0.5rem' }}>
+            Smart Kitchen
           </div>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {NAV_LINKS.map(link => {
+              const isActive = location.pathname.includes(link.path);
+              return (
+                <NavLink
+                  key={link.path}
+                  to={link.path}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem',
+                    borderRadius: 'var(--radius-md)', textDecoration: 'none',
+                    fontWeight: isActive ? 700 : 600,
+                    background: isActive ? 'rgba(56,189,248,0.1)' : 'transparent',
+                    color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <span style={{ fontSize: '1.2rem' }}>{link.icon}</span>
+                  {link.label}
+                </NavLink>
+              );
+            })}
+          </nav>
+        </aside>
 
-          <div className="shop-selector-banner">
-            <div className="form-group" style={{ marginBottom: 0, flex: 1, maxWidth: 320 }}>
-              <label className="form-label">Your Shop</label>
-              <select
-                className="form-select"
-                value={shopId}
-                onChange={(e) => setShopId(e.target.value)}
-                id="shop-selector"
-              >
-                {shops.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name} — {s.type}</option>
-                ))}
-              </select>
-            </div>
-
-            {shopObj && (
-              <div className="selected-shop-info">
-                <div className="selected-shop-name">{shopObj.name}</div>
-                <div className="selected-shop-meta">
-                  📍 {shopObj.location} · ⭐ {shopObj.rating} · 
-                  Efficiency: <span style={{ color: shopObj.efficiency_rate >= 85 ? 'var(--green)' : 'var(--yellow)', fontWeight: 600 }}>
-                    {shopObj.efficiency_rate}%
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── Sub-nav ── */}
-        <div className="vendor-subnav">
-          <button className={`vendor-subnav-btn ${view === 'predict' ? 'active' : ''}`} onClick={() => setView('predict')}>
-            🔮 Predict Demand
-          </button>
-          <button className={`vendor-subnav-btn ${view === 'waste' ? 'active' : ''}`} onClick={() => setView('waste')}>
-            📉 Waste Analysis
-          </button>
-        </div>
-
-        {/* ══ PREDICT VIEW ══ */}
-        {view === 'predict' && (
-          <div className="two-col">
-            {/* Left: Form */}
-            <div className="card">
-              <p className="card-title"><span className="icon">⚙️</span> Prediction Setup</p>
-
-              <form onSubmit={handlePredict}>
-                {/* Menu Item */}
-                <div className="form-group">
-                  <label className="form-label">Menu Item</label>
-                  <select className="form-select" value={menuItem} onChange={(e) => handleMenuChange(e.target.value)}>
-                    {shopObj?.menu.map((m) => (
-                      <option key={m.item} value={m.item}>{m.item}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Time Slot */}
-                <div className="form-group">
-                  <label className="form-label">Time Slot</label>
-                  <select className="form-select" value={slot} onChange={(e) => setSlot(e.target.value)}>
-                    {availableSlots.map((s) => (
-                      <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* 7-day inputs */}
-                <div className="form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <label className="form-label" style={{ marginBottom: 0 }}>Last 7 Days Sales</label>
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      style={{ padding: '0.3rem 0.85rem', fontSize: '0.75rem' }}
-                      onClick={loadSampleData}
-                    >
-                      📋 Load Sample Data
-                    </button>
-                  </div>
-                  <div className="history-grid">
-                    {DAY_LABELS.map((day, i) => (
-                      <div className="history-day" key={i}>
-                        <span className="day-label">{day}</span>
-                        <input
-                          className="form-input"
-                          type="number"
-                          min="0"
-                          placeholder="0"
-                          value={history[i]}
-                          onChange={(e) => {
-                            const upd = [...history];
-                            upd[i] = e.target.value;
-                            setHistory(upd);
-                          }}
-                          required
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <button className="btn btn-primary" type="submit" disabled={loading}>
-                  {loading
-                    ? <><span className="spinner" /> Predicting…</>
-                    : <><span>🔮</span> Predict Demand</>
-                  }
-                </button>
-              </form>
-
-              {formError && <div className="error-msg"><span>⚠️</span> {formError}</div>}
-            </div>
-
-            {/* Right: Result */}
-            <div>
-              {result ? (
-                <div className="result-panel">
-                  <p className="card-title"><span className="icon">✅</span> Prediction Result</p>
-                  <div className="result-item-name">{result.item} — {result.time_slot}</div>
-
-                  <div className="result-recommendation">
-                    <span>🍽️</span> {result.recommendation}
-                  </div>
-
-                  <div className="result-meta-grid">
-                    {[
-                      { label: '7-Day WMA',        value: result.base_average },
-                      { label: 'Slot Multiplier',  value: `${result.slot_multiplier}×` },
-                      { label: 'Safety Factor',    value: `${result.safety_factor}×` },
-                      { label: 'Predicted Demand', value: result.predicted_demand },
-                    ].map((m) => (
-                      <div className="result-meta-item" key={m.label}>
-                        <div className="result-meta-label">{m.label}</div>
-                        <div className="result-meta-value">{m.value}</div>
-                      </div>
-                    ))}
-                    <div className="result-meta-item" style={{ border: '1px solid var(--border-active)', background: 'var(--accent-dim)', gridColumn: 'span 2' }}>
-                      <div className="result-meta-label">Recommended Preparation</div>
-                      <div className="result-meta-value" style={{ fontSize: '1.8rem' }}>
-                        {result.recommended_quantity} <span style={{ fontSize: '0.9rem', fontWeight: 400 }}>units</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ marginTop: '1.25rem', padding: '0.85rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    <strong style={{ color: 'var(--text-primary)' }}>Formula: </strong>
-                    WMA({result.base_average}) × {result.slot_multiplier} × {result.safety_factor} = <strong style={{ color: 'var(--accent)' }}>{result.recommended_quantity} units</strong>
-                  </div>
-
-                  <button
-                    className="btn btn-ghost"
-                    style={{ marginTop: '1rem', width: 'auto', padding: '0.55rem 1.2rem', fontSize: '0.85rem' }}
-                    onClick={() => setView('waste')}
-                  >
-                    → Run Waste Analysis with these numbers
-                  </button>
-                </div>
-              ) : (
-                <div className="card" style={{ minHeight: '360px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div className="empty-state">
-                    <div className="empty-icon">🤖</div>
-                    <p>Select your shop, load sample data,<br />and click <strong>Predict Demand</strong>.</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ══ WASTE VIEW ══ */}
-        {view === 'waste' && (
-          <div className="two-col">
-            <div className="card">
-              <p className="card-title"><span className="icon">🔬</span> Waste Analysis</p>
-              <form onSubmit={handleWaste}>
-                <div className="form-group">
-                  <label className="form-label">Food Item</label>
-                  <input className="form-input" type="text" placeholder="e.g. Rice" value={wItem} onChange={(e) => setWItem(e.target.value)} required />
-                </div>
-
-                <div className="two-col" style={{ gap: '0.75rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Prepared (units)</label>
-                    <input className="form-input" type="number" min="0" placeholder="e.g. 97" value={predicted} onChange={(e) => setPredicted(e.target.value)} required />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Consumed (units)</label>
-                    <input className="form-input" type="number" min="0" placeholder="e.g. 80" value={actual} onChange={(e) => setActual(e.target.value)} required />
-                  </div>
-                </div>
-
-                <button className="btn btn-primary" type="submit" disabled={wLoading}>
-                  {wLoading ? <><span className="spinner" /> Analyzing…</> : <><span>📉</span> Analyze Waste</>}
-                </button>
-              </form>
-              {wError && <div className="error-msg"><span>⚠️</span> {wError}</div>}
-            </div>
-
-            <div>
-              {wResult ? (
-                <div className="waste-result-panel">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                    <p className="card-title" style={{ marginBottom: 0 }}><span className="icon">📋</span> {wResult.item}</p>
-                    <span className={`badge ${STATUS_BADGE[wResult.status] || 'badge-blue'}`}>{wResult.status}</span>
-                  </div>
-
-                  {/* Meter */}
-                  <div style={{ marginBottom: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Waste Meter</span>
-                      <span style={{ fontWeight: 700, color: wResult.waste_percentage > 15 ? 'var(--red)' : 'var(--green)' }}>{wResult.waste_percentage}%</span>
-                    </div>
-                    <div style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%', width: `${Math.min(wResult.waste_percentage, 100)}%`,
-                        background: wResult.waste_percentage > 30 ? 'var(--red)' : wResult.waste_percentage > 15 ? 'var(--yellow)' : 'var(--green)',
-                        borderRadius: 99, transition: 'width 0.6s ease',
-                      }} />
-                    </div>
-                  </div>
-
-                  <div className="result-meta-grid" style={{ marginBottom: '1rem' }}>
-                    <div className="result-meta-item"><div className="result-meta-label">Prepared</div><div className="result-meta-value">{wResult.predicted}</div></div>
-                    <div className="result-meta-item"><div className="result-meta-label">Consumed</div><div className="result-meta-value" style={{ color: 'var(--green)' }}>{wResult.actual}</div></div>
-                    <div className="result-meta-item"><div className="result-meta-label">Wasted</div><div className="result-meta-value" style={{ color: 'var(--red)' }}>{wResult.waste_quantity}</div></div>
-                    <div className="result-meta-item"><div className="result-meta-label">Efficiency</div><div className="result-meta-value" style={{ color: 'var(--green)' }}>{wResult.efficiency_rate}%</div></div>
-                  </div>
-
-                  <div className="waste-tip"><strong>💡 Action: </strong>{wResult.tip}</div>
-                </div>
-              ) : (
-                <div className="card" style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div className="empty-state">
-                    <div className="empty-icon">📉</div>
-                    <p>Enter prepared vs consumed and click Analyze.</p>
-                    {predicted && <p style={{ marginTop: '0.5rem', color: 'var(--accent)', fontSize: '0.82rem' }}>Predicted from last result: {predicted} units</p>}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </main>
-
-      <footer className="app-footer">
-        OptiMeal SaaS · Vendor View · Powered by 7-Day Weighted Moving Average
-      </footer>
+        {/* MAIN CONTENT AREA */}
+        <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
+          <Routes>
+            <Route path="/" element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<VendorOverview {...sharedProps} />} />
+            <Route path="orders" element={<VendorOrders {...sharedProps} />} />
+            <Route path="intelligence" element={<VendorIntelligence {...sharedProps} />} />
+            <Route path="alerts" element={<VendorAlerts {...sharedProps} />} />
+            <Route path="settings" element={<VendorSettings {...sharedProps} />} />
+          </Routes>
+        </main>
+      </div>
     </div>
   );
 }

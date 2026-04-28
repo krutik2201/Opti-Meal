@@ -3,48 +3,67 @@
    ───────────────────────────────────────────────────────────────── */
 
 export const VENDORS = [
-  { id: 'canteen', name: 'Main Canteen',  emoji: '🍛', location: 'Block A – Ground Floor', wait: 12, rush: 'High',   open: true  },
-  { id: 'cafe',    name: 'Campus Café',   emoji: '☕', location: 'Library Wing',           wait: 5,  rush: 'Low',    open: true  },
-  { id: 'juice',   name: 'Juice Center',  emoji: '🥤', location: 'Main Gate',              wait: 8,  rush: 'Medium', open: true  },
-  { id: 'snacks',  name: 'Spice Route',   emoji: '🌮', location: 'Block B – Ground Floor', wait: 15, rush: 'High',   open: true  },
+  { id: 'canteen', name: 'Main Canteen',  emoji: '🍛', location: 'Block A – Ground Floor', wait: 12, rush: 'High',   open: true,  kitchenLoad: 82, batchGroup: 'meals'  },
+  { id: 'cafe',    name: 'Campus Café',   emoji: '☕', location: 'Library Wing',           wait: 5,  rush: 'Low',    open: true,  kitchenLoad: 35, batchGroup: 'drinks' },
+  { id: 'juice',   name: 'Juice Center',  emoji: '🥤', location: 'Main Gate',              wait: 8,  rush: 'Medium', open: true,  kitchenLoad: 58, batchGroup: 'drinks' },
+  { id: 'snacks',  name: 'Spice Route',   emoji: '🌮', location: 'Block B – Ground Floor', wait: 15, rush: 'High',   open: true,  kitchenLoad: 91, batchGroup: 'snacks' },
 ];
 
 export const TIME_SLOTS = [
-  { id: 't1', label: '12:30 – 12:40', full: false },
-  { id: 't2', label: '12:40 – 12:50', full: false },
-  { id: 't3', label: '12:50 – 1:00',  full: true  },
-  { id: 't4', label: '1:00 – 1:10',   full: false },
-  { id: 't5', label: '1:10 – 1:20',   full: false },
-  { id: 't6', label: '1:20 – 1:30',   full: false },
+  { id: 't1', label: '12:30 – 12:40', full: false, capacity: 8,  booked: 6 },
+  { id: 't2', label: '12:40 – 12:50', full: false, capacity: 8,  booked: 3 },
+  { id: 't3', label: '12:50 – 1:00',  full: true,  capacity: 8,  booked: 8 },
+  { id: 't4', label: '1:00 – 1:10',   full: false, capacity: 8,  booked: 2 },
+  { id: 't5', label: '1:10 – 1:20',   full: false, capacity: 8,  booked: 1 },
+  { id: 't6', label: '1:20 – 1:30',   full: false, capacity: 8,  booked: 0 },
 ];
+
+/* ── Decision Intelligence ── */
+export const DECISION_PRESETS = {
+  usual:   { label: 'Your Usual',      emoji: '🔄', items: [6, 1],  reason: 'Ordered 12 times last month'    },
+  trending:{ label: 'Most Ordered Now',emoji: '🔥', items: [18, 12], reason: '142 orders in last 2 hours'    },
+  fastest: { label: 'Fastest Ready',   emoji: '⚡', items: [6, 13], reason: 'Ready in under 4 minutes'       },
+};
+
+export const SESSION_LABELS = {
+  morning: { label: '🌅 Morning Menu',  range: 'Best before 11 AM', highlight: ['Breakfast','Drinks']   },
+  lunch:   { label: '🍛 Lunch Time',    range: '11 AM – 3 PM',      highlight: ['Meals','Snacks']       },
+  evening: { label: '☕ Evening Snacks', range: 'After 3 PM',        highlight: ['Snacks','Drinks']      },
+};
+
+export const REORDER_HINT = {
+  text:    'You usually order again around this time',
+  items:   [6, 1],
+  lastAt:  '12:45 PM',
+};
 
 export const MENU_ITEMS = [
   /* ── Main Canteen ── */
-  { id: 1,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Samosa',         price: 20, category: 'Snacks',    veg: true,  rating: 4.5, reviews: 128, available: true,  emoji: '🥟', tags: ['popular','bestseller'], desc: 'Crispy fried pastry with spiced potato filling',       gradient: 'linear-gradient(135deg,#78350f,#92400e)', calories: 150, prepTime: '5 min' },
-  { id: 2,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Dal Rice',       price: 60, category: 'Meals',     veg: true,  rating: 4.2, reviews: 89,  available: true,  emoji: '🍛', tags: [],                    desc: 'Slow-cooked dal with steamed basmati rice',            gradient: 'linear-gradient(135deg,#1e3a2f,#14532d)', calories: 480, prepTime: '10 min' },
-  { id: 3,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Paneer Roll',    price: 45, category: 'Snacks',    veg: true,  rating: 4.6, reviews: 203, available: true,  emoji: '🌯', tags: ['popular'],            desc: 'Grilled paneer in tandoor roti with mint chutney',     gradient: 'linear-gradient(135deg,#3b1d1d,#5c1a1a)', calories: 320, prepTime: '8 min' },
-  { id: 4,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Idli Sambar',    price: 30, category: 'Breakfast', veg: true,  rating: 4.3, reviews: 156, available: true,  emoji: '🫓', tags: [],                    desc: 'Soft steamed rice cakes with coconut chutney & sambar', gradient: 'linear-gradient(135deg,#1a2e3b,#164e63)', calories: 220, prepTime: '5 min' },
-  { id: 5,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Rajma Chawal',   price: 65, category: 'Meals',     veg: true,  rating: 4.4, reviews: 74,  available: true,  emoji: '🫘', tags: [],                    desc: 'Rich red kidney bean curry with basmati rice',          gradient: 'linear-gradient(135deg,#2d1b0a,#7c2d12)', calories: 510, prepTime: '12 min' },
+  { id: 1,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Samosa',         price: 20, category: 'Snacks',    veg: true,  rating: 4.5, reviews: 128, available: true,  emoji: '🥟', tags: ['popular','bestseller'], desc: 'Crispy fried pastry with spiced potato filling',       gradient: 'linear-gradient(135deg,#78350f,#92400e)', calories: 150, prepTime: '5 min',  prepMins: 5,  instantReady: false, session: ['lunch','evening'] },
+  { id: 2,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Dal Rice',       price: 60, category: 'Meals',     veg: true,  rating: 4.2, reviews: 89,  available: true,  emoji: '🍛', tags: [],                    desc: 'Slow-cooked dal with steamed basmati rice',            gradient: 'linear-gradient(135deg,#1e3a2f,#14532d)', calories: 480, prepTime: '10 min', prepMins: 10, instantReady: false, session: ['lunch'] },
+  { id: 3,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Paneer Roll',    price: 45, category: 'Snacks',    veg: true,  rating: 4.6, reviews: 203, available: true,  emoji: '🌯', tags: ['popular'],            desc: 'Grilled paneer in tandoor roti with mint chutney',     gradient: 'linear-gradient(135deg,#3b1d1d,#5c1a1a)', calories: 320, prepTime: '8 min',  prepMins: 8,  instantReady: false, session: ['lunch','evening'] },
+  { id: 4,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Idli Sambar',    price: 30, category: 'Breakfast', veg: true,  rating: 4.3, reviews: 156, available: true,  emoji: '🫓', tags: [],                    desc: 'Soft steamed rice cakes with coconut chutney & sambar', gradient: 'linear-gradient(135deg,#1a2e3b,#164e63)', calories: 220, prepTime: '5 min',  prepMins: 5,  instantReady: false, session: ['morning'] },
+  { id: 5,  vendorId: 'canteen', vendorName: 'Main Canteen', name: 'Rajma Chawal',   price: 65, category: 'Meals',     veg: true,  rating: 4.4, reviews: 74,  available: true,  emoji: '🫘', tags: [],                    desc: 'Rich red kidney bean curry with basmati rice',          gradient: 'linear-gradient(135deg,#2d1b0a,#7c2d12)', calories: 510, prepTime: '12 min', prepMins: 12, instantReady: false, session: ['lunch'] },
 
   /* ── Campus Café ── */
-  { id: 6,  vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Masala Tea',     price: 15, category: 'Drinks',    veg: true,  rating: 4.7, reviews: 342, available: true,  emoji: '🍵', tags: ['popular','bestseller'], desc: 'Fresh brewed spiced Indian chai – strong and aromatic', gradient: 'linear-gradient(135deg,#292524,#44403c)', calories: 80,  prepTime: '3 min' },
-  { id: 7,  vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Veg Sandwich',   price: 40, category: 'Snacks',    veg: true,  rating: 4.1, reviews: 67,  available: true,  emoji: '🥪', tags: [],                    desc: 'Toasted with cucumber, tomato, cheese and mint mayo',   gradient: 'linear-gradient(135deg,#14532d,#166534)', calories: 280, prepTime: '7 min' },
-  { id: 8,  vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Cold Coffee',    price: 55, category: 'Drinks',    veg: true,  rating: 4.8, reviews: 289, available: true,  emoji: '🧋', tags: ['popular'],            desc: 'Blended espresso with chilled milk, ice and syrup',     gradient: 'linear-gradient(135deg,#1e1b4b,#1e3a5f)', calories: 180, prepTime: '5 min' },
-  { id: 9,  vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Blueberry Muffin',price:35, category: 'Bakery',   veg: true,  rating: 4.0, reviews: 44,  available: false, emoji: '🧁', tags: [],                    desc: 'Freshly baked blueberry muffin – sold out by noon',    gradient: 'linear-gradient(135deg,#3b1c5c,#4c1d95)', calories: 350, prepTime: '–' },
-  { id: 10, vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Frankie',        price: 45, category: 'Snacks',    veg: true,  rating: 4.3, reviews: 91,  available: true,  emoji: '🌮', tags: [],                    desc: 'Spiced masala wrap with veggies and mayo',             gradient: 'linear-gradient(135deg,#431407,#9a3412)', calories: 310, prepTime: '8 min' },
+  { id: 6,  vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Masala Tea',     price: 15, category: 'Drinks',    veg: true,  rating: 4.7, reviews: 342, available: true,  emoji: '🍵', tags: ['popular','bestseller'], desc: 'Fresh brewed spiced Indian chai – strong and aromatic', gradient: 'linear-gradient(135deg,#292524,#44403c)', calories: 80,  prepTime: '3 min',  prepMins: 3,  instantReady: true,  session: ['morning','lunch','evening'] },
+  { id: 7,  vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Veg Sandwich',   price: 40, category: 'Snacks',    veg: true,  rating: 4.1, reviews: 67,  available: true,  emoji: '🥪', tags: [],                    desc: 'Toasted with cucumber, tomato, cheese and mint mayo',   gradient: 'linear-gradient(135deg,#14532d,#166534)', calories: 280, prepTime: '7 min',  prepMins: 7,  instantReady: false, session: ['morning','lunch'] },
+  { id: 8,  vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Cold Coffee',    price: 55, category: 'Drinks',    veg: true,  rating: 4.8, reviews: 289, available: true,  emoji: '🧋', tags: ['popular'],            desc: 'Blended espresso with chilled milk, ice and syrup',     gradient: 'linear-gradient(135deg,#1e1b4b,#1e3a5f)', calories: 180, prepTime: '5 min',  prepMins: 5,  instantReady: false, session: ['morning','lunch','evening'] },
+  { id: 9,  vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Blueberry Muffin',price:35, category: 'Bakery',   veg: true,  rating: 4.0, reviews: 44,  available: false, emoji: '🧁', tags: [],                    desc: 'Freshly baked blueberry muffin – sold out by noon',    gradient: 'linear-gradient(135deg,#3b1c5c,#4c1d95)', calories: 350, prepTime: '–',      prepMins: 99, instantReady: false, session: ['morning'] },
+  { id: 10, vendorId: 'cafe',    vendorName: 'Campus Café',  name: 'Frankie',        price: 45, category: 'Snacks',    veg: true,  rating: 4.3, reviews: 91,  available: true,  emoji: '🌮', tags: [],                    desc: 'Spiced masala wrap with veggies and mayo',             gradient: 'linear-gradient(135deg,#431407,#9a3412)', calories: 310, prepTime: '8 min',  prepMins: 8,  instantReady: false, session: ['lunch','evening'] },
 
   /* ── Juice Center ── */
-  { id: 11, vendorId: 'juice',   vendorName: 'Juice Center', name: 'Sweet Lime',     price: 30, category: 'Drinks',    veg: true,  rating: 4.6, reviews: 178, available: true,  emoji: '🍋', tags: ['popular'],            desc: 'Fresh squeezed sweet lime with chaat masala',          gradient: 'linear-gradient(135deg,#365314,#3f6212)', calories: 90,  prepTime: '4 min' },
-  { id: 12, vendorId: 'juice',   vendorName: 'Juice Center', name: 'Mango Shake',    price: 50, category: 'Drinks',    veg: true,  rating: 4.9, reviews: 401, available: true,  emoji: '🥭', tags: ['bestseller','popular'],desc: 'Thick alphonso mango blended with milk and honey',    gradient: 'linear-gradient(135deg,#78350f,#b45309)', calories: 240, prepTime: '5 min' },
-  { id: 13, vendorId: 'juice',   vendorName: 'Juice Center', name: 'Watermelon',     price: 25, category: 'Drinks',    veg: true,  rating: 4.4, reviews: 91,  available: true,  emoji: '🍉', tags: [],                    desc: 'Chilled fresh watermelon with mint and lemon',         gradient: 'linear-gradient(135deg,#15803d,#166534)', calories: 70,  prepTime: '3 min' },
-  { id: 14, vendorId: 'juice',   vendorName: 'Juice Center', name: 'Sugarcane Juice',price: 20, category: 'Drinks',    veg: true,  rating: 4.5, reviews: 133, available: true,  emoji: '🌿', tags: [],                    desc: 'Fresh pressed sugarcane with ginger and lemon',        gradient: 'linear-gradient(135deg,#1a3a1a,#14532d)', calories: 110, prepTime: '4 min' },
+  { id: 11, vendorId: 'juice',   vendorName: 'Juice Center', name: 'Sweet Lime',     price: 30, category: 'Drinks',    veg: true,  rating: 4.6, reviews: 178, available: true,  emoji: '🍋', tags: ['popular'],            desc: 'Fresh squeezed sweet lime with chaat masala',          gradient: 'linear-gradient(135deg,#365314,#3f6212)', calories: 90,  prepTime: '4 min',  prepMins: 4,  instantReady: true,  session: ['morning','lunch','evening'] },
+  { id: 12, vendorId: 'juice',   vendorName: 'Juice Center', name: 'Mango Shake',    price: 50, category: 'Drinks',    veg: true,  rating: 4.9, reviews: 401, available: true,  emoji: '🥭', tags: ['bestseller','popular'],desc: 'Thick alphonso mango blended with milk and honey',    gradient: 'linear-gradient(135deg,#78350f,#b45309)', calories: 240, prepTime: '5 min',  prepMins: 5,  instantReady: false, session: ['lunch','evening'] },
+  { id: 13, vendorId: 'juice',   vendorName: 'Juice Center', name: 'Watermelon',     price: 25, category: 'Drinks',    veg: true,  rating: 4.4, reviews: 91,  available: true,  emoji: '🍉', tags: [],                    desc: 'Chilled fresh watermelon with mint and lemon',         gradient: 'linear-gradient(135deg,#15803d,#166534)', calories: 70,  prepTime: '3 min',  prepMins: 3,  instantReady: true,  session: ['morning','lunch','evening'] },
+  { id: 14, vendorId: 'juice',   vendorName: 'Juice Center', name: 'Sugarcane Juice',price: 20, category: 'Drinks',    veg: true,  rating: 4.5, reviews: 133, available: true,  emoji: '🌿', tags: [],                    desc: 'Fresh pressed sugarcane with ginger and lemon',        gradient: 'linear-gradient(135deg,#1a3a1a,#14532d)', calories: 110, prepTime: '4 min',  prepMins: 4,  instantReady: true,  session: ['morning','lunch','evening'] },
 
   /* ── Spice Route ── */
-  { id: 15, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Pav Bhaji',      price: 50, category: 'Meals',     veg: true,  rating: 4.5, reviews: 213, available: true,  emoji: '🥘', tags: ['popular'],            desc: 'Spiced mashed vegetable curry with buttered pav',      gradient: 'linear-gradient(135deg,#7c2d12,#9a3412)', calories: 420, prepTime: '10 min' },
-  { id: 16, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Vada Pav',       price: 20, category: 'Snacks',    veg: true,  rating: 4.3, reviews: 167, available: true,  emoji: '🍔', tags: ['bestseller'],         desc: 'Mumbai street food – potato fritter in bread',         gradient: 'linear-gradient(135deg,#292524,#57534e)', calories: 280, prepTime: '5 min' },
-  { id: 17, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Chole Bhature',  price: 65, category: 'Meals',     veg: true,  rating: 4.6, reviews: 89,  available: true,  emoji: '🫓', tags: [],                    desc: 'Spiced chickpeas with fluffy fried bread',             gradient: 'linear-gradient(135deg,#451a03,#78350f)', calories: 560, prepTime: '12 min' },
-  { id: 18, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Pani Puri',      price: 30, category: 'Snacks',    veg: true,  rating: 4.8, reviews: 322, available: true,  emoji: '🫙', tags: ['popular','bestseller'],desc: 'Crispy hollow puri with tangy tamarind chutney water',  gradient: 'linear-gradient(135deg,#1a2e3b,#0c4a6e)', calories: 200, prepTime: '5 min' },
-  { id: 19, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Dahi Puri',      price: 35, category: 'Snacks',    veg: true,  rating: 4.4, reviews: 98,  available: true,  emoji: '🍱', tags: [],                    desc: 'Yogurt-filled puri with tamarind and sev',             gradient: 'linear-gradient(135deg,#1e3a5f,#1e40af)', calories: 220, prepTime: '6 min' },
+  { id: 15, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Pav Bhaji',      price: 50, category: 'Meals',     veg: true,  rating: 4.5, reviews: 213, available: true,  emoji: '🥘', tags: ['popular'],            desc: 'Spiced mashed vegetable curry with buttered pav',      gradient: 'linear-gradient(135deg,#7c2d12,#9a3412)', calories: 420, prepTime: '10 min', prepMins: 10, instantReady: false, session: ['lunch'] },
+  { id: 16, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Vada Pav',       price: 20, category: 'Snacks',    veg: true,  rating: 4.3, reviews: 167, available: true,  emoji: '🍔', tags: ['bestseller'],         desc: 'Mumbai street food – potato fritter in bread',         gradient: 'linear-gradient(135deg,#292524,#57534e)', calories: 280, prepTime: '5 min',  prepMins: 5,  instantReady: false, session: ['lunch','evening'] },
+  { id: 17, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Chole Bhature',  price: 65, category: 'Meals',     veg: true,  rating: 4.6, reviews: 89,  available: true,  emoji: '🫓', tags: [],                    desc: 'Spiced chickpeas with fluffy fried bread',             gradient: 'linear-gradient(135deg,#451a03,#78350f)', calories: 560, prepTime: '12 min', prepMins: 12, instantReady: false, session: ['lunch'] },
+  { id: 18, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Pani Puri',      price: 30, category: 'Snacks',    veg: true,  rating: 4.8, reviews: 322, available: true,  emoji: '🫙', tags: ['popular','bestseller'],desc: 'Crispy hollow puri with tangy tamarind chutney water',  gradient: 'linear-gradient(135deg,#1a2e3b,#0c4a6e)', calories: 200, prepTime: '5 min',  prepMins: 5,  instantReady: false, session: ['lunch','evening'] },
+  { id: 19, vendorId: 'snacks',  vendorName: 'Spice Route',  name: 'Dahi Puri',      price: 35, category: 'Snacks',    veg: true,  rating: 4.4, reviews: 98,  available: true,  emoji: '🍱', tags: [],                    desc: 'Yogurt-filled puri with tamarind and sev',             gradient: 'linear-gradient(135deg,#1e3a5f,#1e40af)', calories: 220, prepTime: '6 min',  prepMins: 6,  instantReady: false, session: ['lunch','evening'] },
 ];
 
 export const AI_COMBOS = [

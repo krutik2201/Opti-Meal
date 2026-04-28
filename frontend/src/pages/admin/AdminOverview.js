@@ -44,8 +44,8 @@ export default function AdminOverview({ onNavigate }) {
       {/* ── Page header ── */}
       <div className="adm-page-header">
         <div>
-          <h1 className="adm-page-title">Platform Overview</h1>
-          <p className="adm-page-sub">Live control center across {ps.activeColleges} active colleges and {ps.activeVendors} vendors</p>
+          <h1 className="adm-page-title">SaaS Control Center</h1>
+          <p className="adm-page-sub">Global kitchen intelligence across {ps.activeColleges} campuses and {ps.activeVendors} vendors</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <span className="adm-badge adm-badge-green">● Live Data</span>
@@ -55,14 +55,14 @@ export default function AdminOverview({ onNavigate }) {
 
       {/* ── KPI Grid ── */}
       <div className="adm-kpi-grid">
-        <KPICard icon="🏫" label="Total Colleges"    value={ps.totalColleges}    sub={`${ps.activeColleges} active`}          color="var(--accent)"  trend={ps.monthlyGrowth} />
-        <KPICard icon="🍽️" label="Total Vendors"     value={ps.totalVendors}     sub={`${ps.activeVendors} active`}           color="var(--accent)"  />
+        <KPICard icon="🏫" label="Active Campuses"   value={ps.totalColleges}    sub={`${ps.activeColleges} online now`}      color="var(--accent)"  trend={ps.monthlyGrowth} />
+        <KPICard icon="👨‍🍳" label="Kitchens Connected" value={ps.totalVendors}     sub={`${ps.activeVendors} active`}           color="var(--accent)"  />
         <KPICard icon="🎓" label="Total Students"    value={ps.totalStudents.toLocaleString()} sub="Across all colleges"    color="var(--text-primary)" />
-        <KPICard icon="📦" label="Orders Today"      value={ps.totalOrdersToday.toLocaleString()} sub={`${ps.activeOrders} active now`} color="var(--yellow)" />
+        <KPICard icon="📦" label="Total Orders Today" value={ps.totalOrdersToday.toLocaleString()} sub={`${ps.activeOrders} processing now`} color="var(--yellow)" />
         <KPICard icon="💰" label="Monthly Revenue"   value={`₹${(ps.totalRevenueMRR/1000).toFixed(0)}K`} sub="MRR this month" color="var(--green)" trend={ps.monthlyGrowth} />
-        <KPICard icon="⭐" label="Avg Platform Rating" value={ps.avgRating}      sub={`${ps.totalComplaints} total complaints`} color="var(--yellow)" />
-        <KPICard icon="🤖" label="AI Feature Usage"  value={`${ps.aiFeatureUsage}%`} sub="of active colleges"              color="var(--accent)"  />
-        <KPICard icon="📱" label="QR Order Usage"    value={`${ps.qrOrderingUsage}%`} sub="adoption rate"                  color="var(--green)"   />
+        <KPICard icon="⏱️" label="Avg Wait Reduction" value="18%"                sub="vs traditional queue"                   color="var(--green)" />
+        <KPICard icon="🧠" label="Auto-Pacing Usage" value={`${ps.aiFeatureUsage}%`} sub="of active kitchens"               color="var(--accent)"  />
+        <KPICard icon="🔒" label="Slot Locking Events" value="1,402"               sub="overload prevented"                   color="var(--yellow)"   />
       </div>
 
       {/* ── Charts row ── */}
@@ -92,11 +92,11 @@ export default function AdminOverview({ onNavigate }) {
           </div>
         </div>
 
-        {/* Hourly orders heatmap */}
+        {/* Hourly load distribution heatmap */}
         <div className="adm-card">
           <div className="adm-card-header">
-            <span className="adm-card-title">📦 Order Volume by Hour</span>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Peak: {ps.peakHour}</span>
+            <span className="adm-card-title">📊 Global Load Distribution (Simulated Heatmap)</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Peak Times: {ps.peakHour}</span>
           </div>
           <div style={{ height: 220 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -168,13 +168,13 @@ export default function AdminOverview({ onNavigate }) {
 
         {/* AI Insights */}
         <div className="adm-card">
-          <div className="adm-card-title" style={{ marginBottom: '1rem' }}>🤖 AI Platform Insights</div>
+          <div className="adm-card-title" style={{ marginBottom: '1rem' }}>🧠 Intelligence System Insights</div>
           {[
-            { icon: '⏰', label: 'Peak Usage Hour', value: ps.peakHour },
-            { icon: '📈', label: 'Revenue Forecast (May)', value: `₹${(ps.forecastNextMonth/1000).toFixed(0)}K` },
-            { icon: '🏆', label: 'Most Active College', value: ps.mostActiveCollege },
-            { icon: '⚠️', label: 'At-Risk College', value: ps.leastActiveCollege },
-            { icon: '🎓', label: 'New Colleges (Apr)', value: `+${ps.newCollegesMonth} onboarded` },
+            { icon: '⏰', label: 'Global Peak Time', value: ps.peakHour },
+            { icon: '📈', label: 'Projected Revenue (May)', value: `₹${(ps.forecastNextMonth/1000).toFixed(0)}K` },
+            { icon: '🎯', label: 'Highest Kitchen Efficiency', value: 'Main Canteen (IIT B)' },
+            { icon: '⚠️', label: 'Most Frequent Delay Spikes', value: 'Quick Bites (Delhi U)' },
+            { icon: '🔄', label: 'Workload Smoothing Triggers', value: '3,205 today' },
           ].map(row => (
             <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem 0', borderBottom: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>

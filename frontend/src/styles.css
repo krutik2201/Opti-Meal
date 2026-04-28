@@ -3179,3 +3179,247 @@ select.adm-input option { background: #0f1726; color: var(--text-primary); }
   .adm-kpi-grid { grid-template-columns: 1fr 1fr; }
   .adm-main     { padding: 1rem; }
 }
+/* ================================================================
+   OptiMeal v3 — Smart Queue & Time Optimization System Styles
+   ================================================================ */
+
+/* Zero-Wait Mode pulse */
+@keyframes zw-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.35); }
+  50%      { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+}
+
+/* Guaranteed-time glow pulse */
+@keyframes pulse-glow {
+  0%,100% { text-shadow: 0 0 0 rgba(16,185,129,0); }
+  50%      { text-shadow: 0 0 20px rgba(16,185,129,0.5); }
+}
+
+/* Fade-in for delay banner */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Time-slot capacity bar */
+.time-slot-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.55rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.time-slot-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+.time-slot-btn.full {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(239,68,68,0.06);
+  border-color: rgba(239,68,68,0.2);
+}
+
+/* Kitchen load cards extra */
+.kitchen-load-fast   { color: var(--green);  }
+.kitchen-load-mod    { color: var(--yellow); }
+.kitchen-load-slow   { color: var(--red);    }
+
+/* Decision confidence badges */
+.conf-high   { color: var(--green);  background: rgba(16,185,129,0.1);  border: 1px solid rgba(16,185,129,0.3); }
+.conf-medium { color: var(--yellow); background: rgba(245,158,11,0.1);  border: 1px solid rgba(245,158,11,0.3); }
+.conf-low    { color: var(--red);    background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.3);  }
+
+/* Instant Decision card hover */
+.instant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+/* Session banner pill */
+.session-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(56,189,248,0.1);
+  border: 1px solid rgba(56,189,248,0.25);
+  border-radius: 99px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Speed mode pill group */
+.speed-pill {
+  flex: 1;
+  padding: 0.5rem 0.3rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+  text-align: center;
+}
+.speed-pill.active {
+  border: 1.5px solid var(--accent);
+  background: var(--accent-dim);
+}
+
+/* Fast-item top glow stripe */
+.fast-item-stripe {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--green), transparent);
+  border-radius: 99px 99px 0 0;
+}
+
+/* Tracker guaranteed time */
+.tracker-ready-time {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--green);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Delay transparent banner */
+.delay-banner {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.35);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  animation: fadeIn 0.4s ease;
+}
+
+/* Batch hint badge */
+.batch-hint {
+  background: rgba(56,189,248,0.06);
+  border: 1px solid rgba(56,189,248,0.2);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.85rem;
+  font-size: 0.78rem;
+  color: var(--accent);
+}
+
+/* ============================================================
+   OPTIMEAL ADVANCED ANIMATIONS — v3
+   ============================================================ */
+
+/* Live dot pulse */
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* Shimmer for gradient borders */
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* Bounce for ready celebration */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  30%       { transform: translateY(-12px); }
+  60%       { transform: translateY(-5px); }
+}
+
+/* Shake for delay alert */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+/* Card slide-up on enter */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Countdown ring */
+.countdown-ring {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* Zero-wait mode hero items */
+.zw-item-enter {
+  animation: slideUp 0.3s ease forwards;
+}
+
+/* Kitchen load pulsing glow */
+.load-glow-green { box-shadow: 0 0 12px rgba(16,185,129,0.25); }
+.load-glow-yellow { box-shadow: 0 0 12px rgba(245,158,11,0.2); }
+.load-glow-red { box-shadow: 0 0 14px rgba(239,68,68,0.25); }
+
+/* Guaranteed time hero display */
+.ready-time-hero {
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--green);
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+/* Delay time hero */
+.delay-time-hero {
+  font-size: clamp(1.8rem, 7vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--yellow);
+}
+
+/* Instant decision auto-confirm progress */
+.auto-confirm-bar {
+  height: 3px;
+  border-radius: 99px;
+  background: var(--green);
+  transition: width 1s linear;
+}
+
+/* Step label enhanced */
+.tracker-step-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0.3rem;
+}
+
+/* Surface card with depth */
+.surface-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  box-shadow: var(--shadow-card);
+}
+
+/* Time badge */
+.time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 99px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.time-badge.fast     { background: rgba(16,185,129,0.15); color: var(--green);  border: 1px solid rgba(16,185,129,0.3); }
+.time-badge.moderate { background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+.time-badge.slow     { background: rgba(239,68,68,0.15);  color: var(--red);    border: 1px solid rgba(239,68,68,0.3);  }
