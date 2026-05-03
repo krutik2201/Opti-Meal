@@ -1,155 +1,99 @@
-# 🚀 OptiMeal – Smart Queue & Kitchen Intelligence System Campus Food
+# 🚀 OptiMeal – Smart Queue & Food Optimization System
+
+OptiMeal is a production-style campus food platform designed to solve the chaos of canteen rush hours using real-time queue intelligence and predictive demand planning.
 
 ---
 
-## 🎯 Problem
+## 💡 Problem
+Campus canteens suffer from:
+* **Long queues** during peak hours (12 PM - 2 PM).
+* **Uncertain wait times** causing student frustration.
+* **Kitchen overload** leading to delayed orders and poor food quality.
+* **Food waste** due to inefficient demand forecasting.
 
-College canteens face major issues:
-
-* ⏱ Long queues during peak hours
-* ❓ Uncertain waiting times
-* 🔥 Kitchen overload and chaos
-* 😤 Poor student experience
-
----
-
-## 💡 Solution
-
-OptiMeal is a:
-
-👉 **Smart Queue & Kitchen Intelligence System**
-
-It transforms food ordering into a **time-controlled, predictable system** by:
-
-* Managing demand using pickup time slots
-* Showing real-time queue & kitchen load
-* Providing estimated ready time
-* Helping vendors handle rush efficiently
+## ✅ Solution
+OptiMeal is NOT just a food ordering app; it is a **Real-Time + Predictive Queue Intelligence System** that:
+* **Reduces waiting time** for students via live status tracking.
+* **Distributes orders** using structured pickup time slots.
+* **Helps vendors** handle rush efficiently with a state-based kitchen workflow.
+* **Gives admins** full visibility into system health and vendor performance.
 
 ---
 
-## ❗ What Makes It Different
+## 🧠 Key Features
 
-🚫 This is NOT a typical food ordering app
+### 🧑‍🎓 Student Experience
+* **Queue Status Hero**: Instantly see wait times and rush levels (Low/Medium/High).
+* **Predictive Timing**: "Best time to order" suggestions to avoid the peak rush.
+* **Quick Ordering**: One-click add-to-cart for popular items.
+* **Live Tracking**: Real-time status updates with a countdown timer.
+* **⚡ Time Saved Metric**: Celebrates every minute saved by skipping the physical queue.
 
-✅ It is a **Time & Uncertainty Control System**
+### 🧑‍🍳 Vendor Dashboard
+* **Action-First Interface**: Manage orders through a simple "Accept → Prepare → Ready" flow.
+* **Express Order Support**: Visual priority badges for high-speed preparation.
+* **Load Analytics**: Real-time kitchen load tracking to manage staff capacity.
+* **Menu Management**: Full CRUD capabilities for menu items and stock availability.
 
-We focus on:
-
-* ⏳ Saving time
-* 📊 Predicting demand
-* 🍳 Optimizing kitchen workflow
-
----
-
-## 🧩 Key Features
-
-### 👨‍🎓 Student
-
-* Browse menu & order food
-* Select pickup time slots
-* View queue status (Low / Medium / High)
-* Get estimated ready time
-* Track order status
+### 🛡️ Admin Control Panel
+* **System Overview**: 5-second health check covering revenue, orders, and active users.
+* **Peak Hour Analysis**: Visual charts showing order distribution throughout the day.
+* **Actionable Alerts**: Immediate notifications for system delays or vendor bottlenecks.
 
 ---
 
-### 👨‍🍳 Vendor
-
-* Manage orders in real-time
-* Status flow:
-  → Accept → Preparing → Ready → Completed
-* View kitchen load
-* Handle rush efficiently
+## 🏗️ Tech Stack
+* **Frontend**: React (SPA), Recharts (Analytics), CSS3 (Modern Glassmorphism UI)
+* **Backend**: Flask (Python), REST API
+* **State Management**: LocalStorage Sync (Demo mode) / Real-time order simulation
 
 ---
 
-### 🧑‍💼 Admin
-
-* Monitor platform activity
-* View total orders
-* Track vendor performance
+## 🎯 Core Idea
+> **"This is NOT a food ordering app. It is a Queue Optimization System."**
+> Our goal is to replace physical queues with digital certainty.
 
 ---
 
-## 🔄 Demo Flow (IMPORTANT)
+## 📸 Screenshots
 
-1. Login as **Student**
-2. Add items and place an order
-3. Select pickup time slot
-4. Login as **Vendor**
-5. Accept → Prepare → Mark as Ready
-6. Login as **Admin**
-7. View dashboard and system status
+### Student Home & Queue Status
+![Student Home](docs/screenshots/student_home.png)
 
----
+### Student Order History & Time Saved
+![Student Tracking](docs/screenshots/student_tracking.png)
 
-## ⚙️ Tech Stack
+### Vendor Kitchen Management
+![Vendor Dashboard](docs/screenshots/vendor_dashboard.png)
 
-* ⚛️ React (Frontend)
-* 🐍 Flask (Backend)
-* 🎨 Tailwind CSS
+### Admin System Control Panel
+![Admin Dashboard](docs/screenshots/admin_dashboard.png)
 
 ---
 
-## ▶️ How to Run
-
-### 1️⃣ Frontend
-
-```bash
-cd frontend
-npm install
-npm start
-```
+## 🚀 Future Scope
+* **AI Demand Prediction**: Machine learning models to forecast ingredient needs based on historical peaks.
+* **Smart Vendor Recommendations**: Suggesting vendors with the lowest wait times to students.
+* **Advanced Analytics**: Detailed wastage reporting and revenue optimization tools for vendors.
 
 ---
 
-### 2️⃣ Backend
+## 👨‍💻 Installation & Setup
 
-```bash
-cd backend
-pip install -r requirements.txt
-python app.py
-```
+1. **Frontend**:
+   ```bash
+   cd frontend
+   npm install
+   npm start
+   ```
 
----
-
-## 🧠 Core Idea
-
-👉 **Smart Queue Management**
-👉 **Kitchen Intelligence**
-👉 **Time Optimization**
-
----
-
-## 🎯 Why It Matters
-
-* Reduces waiting time
-* Improves student experience
-* Helps vendors manage peak hours
-* Creates efficient food systems
+2. **Backend**:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   python app.py
+   ```
 
 ---
 
-## 👨‍💻 Author
-
-**Krutik Devpura**
-
----
-
-## 🌟 Future Scope
-
-* AI-based demand prediction
-* Smart recommendations
-* Multi-campus deployment
-* Advanced analytics
-
----
-
-# 🔥 Final Note
-
-This project focuses on:
-
-👉 **Clarity + Speed + Real-world impact**
-
-Instead of adding more features, it solves a **real problem effectively**.
+*Built with ❤️ for Campus Efficiency.*

@@ -44,7 +44,7 @@ function Navbar({ userName, role, onLogout }) {
 
           <div className="navbar-username">
             <span className="navbar-avatar">
-              {userName.charAt(0).toUpperCase()}
+              {userName ? userName.charAt(0).toUpperCase() : '?'}
             </span>
             <span className="navbar-username-text">{userName}</span>
           </div>

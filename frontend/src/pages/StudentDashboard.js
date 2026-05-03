@@ -1,69 +1,40 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
-import StudentHome          from './student/StudentHome';
-import StudentMenu          from './student/StudentMenu';
-import StudentCart          from './student/StudentCart';
-import StudentTracking      from './student/StudentTracking';
-import StudentHistory       from './student/StudentHistory';
-import StudentProfile       from './student/StudentProfile';
-import StudentItemDetail    from './student/StudentItemDetail';
-import StudentNotifications from './student/StudentNotifications';
-import StudentReviews       from './student/StudentReviews';
-import StudentFavorites     from './student/StudentFavorites';
-import StudentQueue         from './student/StudentQueue';
-import StudentOffers        from './student/StudentOffers';
-import StudentInsights      from './student/StudentInsights';
-import StudentAIRecommend   from './student/StudentAIRecommend';
-import StudentComplaint     from './student/StudentComplaint';
-import ZeroWaitMode         from './student/ZeroWaitMode';
-import InstantDecision      from './student/InstantDecision';
+import StudentHome     from './student/StudentHome';
+import StudentMenu     from './student/StudentMenu';
+import StudentCart     from './student/StudentCart';
+import StudentTracking from './student/StudentTracking';
+import StudentProfile  from './student/StudentProfile';
+import StudentItemDetail from './student/StudentItemDetail';
 
-import { MOCK_PAST_ORDERS, MENU_ITEMS, DEFAULT_FAVORITES, MOCK_NOTIFICATIONS, VENDORS } from './student/data';
+import { MOCK_PAST_ORDERS, MENU_ITEMS, VENDORS } from './student/data';
 import '../styles.css';
 
+/* ═══════════════════════════════════════════════════════
+   4-TAB NAVIGATION: Home | Menu | Orders | Profile
+   ═══════════════════════════════════════════════════════ */
 const NAV_TABS = [
-  { id: 'home',    label: 'Home',   icon: '🏠' },
-  { id: 'menu',    label: 'Menu',   icon: '🍽️' },
-  { id: 'queue',   label: 'Queue',  icon: '📊' },
-  { id: 'history', label: 'Orders', icon: '📋' },
-  { id: 'more',    label: 'More',   icon: '···' },
+  { id: 'home',     label: 'Home',    icon: '🏠' },
+  { id: 'menu',     label: 'Menu',    icon: '🍽️' },
+  { id: 'tracking', label: 'Orders',  icon: '📦' },
+  { id: 'profile',  label: 'Profile', icon: '👤' },
 ];
 
-const MORE_ITEMS = [
-  { id: 'zerowait',      icon: '⚡', label: 'Zero-Wait'      },
-  { id: 'instant',       icon: '🧠', label: 'Instant Pick'   },
-  { id: 'profile',       icon: '👤', label: 'Profile'         },
-  { id: 'notifications', icon: '🔔', label: 'Notifications'   },
-  { id: 'favorites',     icon: '❤️', label: 'Favorites'       },
-  { id: 'ai',            icon: '🤖', label: 'AI Picks'        },
-  { id: 'offers',        icon: '🎁', label: 'Offers'          },
-  { id: 'insights',      icon: '📊', label: 'My Insights'     },
-  { id: 'reviews',       icon: '⭐', label: 'Reviews'         },
-  { id: 'complaint',     icon: '💬', label: 'Help'            },
-];
-
-const TAB_VIEW_MAP = {
-  home: 'home', menu: 'menu', queue: 'queue',
-  cart: 'menu',
-  history: 'history', tracking: 'history',
-  profile: 'more', notifications: 'more', favorites: 'more',
-  ai: 'more', offers: 'more', insights: 'more', reviews: 'more',
-  complaint: 'more', zerowait: 'more', instant: 'more',
+const TAB_MAP = {
+  home: 'home', menu: 'menu', cart: 'menu',
+  tracking: 'tracking', profile: 'profile',
 };
 
 function StudentDashboard({ auth, onLogout }) {
-  const [view,         setView]         = useState('home');
-  const [cart,         setCart]         = useState([]);
+  const [view, setView] = useState('home');
+  const [cart, setCart] = useState([]);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [orderHistory, setOrderHistory] = useState(MOCK_PAST_ORDERS);
-  const [toast,        setToast]        = useState('');
-  const [favorites,    setFavorites]    = useState(DEFAULT_FAVORITES);
-  const [showMore,     setShowMore]     = useState(false);
-  const [detailItem,   setDetailItem]   = useState(null);
-  const [menuVendor,   setMenuVendor]   = useState('all');
-  const [unreadCount,  setUnreadCount]  = useState(MOCK_NOTIFICATIONS.filter(n => !n.read).length);
+  const [toast, setToast] = useState('');
+  const [detailItem, setDetailItem] = useState(null);
+  const [menuVendor, setMenuVendor] = useState('all');
 
-  /* ── Shared kitchen load state (simulated live) ── */
+  /* ── Simulated live kitchen loads ── */
   const [kitchenLoads, setKitchenLoads] = useState(
     Object.fromEntries(VENDORS.map(v => [v.id, v.kitchenLoad]))
   );
@@ -142,7 +113,7 @@ function StudentDashboard({ auth, onLogout }) {
       kitchenLoad: kitchenLoad || 60,
     };
     
-    // Hackathon Magic: Sync to localStorage for Vendor to see!
+    // Sync to localStorage for Vendor dashboard
     const existing = JSON.parse(localStorage.getItem('optimeal_shared_orders') || '[]');
     localStorage.setItem('optimeal_shared_orders', JSON.stringify([...existing, order]));
 
@@ -152,71 +123,23 @@ function StudentDashboard({ auth, onLogout }) {
     navigate('tracking');
   };
 
-  /* ── Reorder ── */
-  const reorder = (order) => {
-    order.items.forEach(({ name, qty }) => {
-      const item = MENU_ITEMS.find(m => m.name === name);
-      if (item) for (let i = 0; i < qty; i++) addToCart(item);
-    });
-    navigate('cart');
-  };
-
-  /* ── Favorites ── */
-  const toggleFavorite = useCallback((itemId) => {
-    setFavorites(prev => {
-      const next = new Set(prev);
-      if (next.has(itemId)) { next.delete(itemId); showToast('Removed from favorites'); }
-      else { next.add(itemId); showToast('❤️ Added to favorites'); }
-      return next;
-    });
-  }, []);
-
   /* ── Navigation ── */
-  const navigate = (v) => { setDetailItem(null); setShowMore(false); setView(v); };
+  const navigate = (v) => { setDetailItem(null); setView(v); };
   const navigateToVendor = (vendorId) => { setMenuVendor(vendorId); navigate('menu'); };
-  const handleTabClick = (tabId) => {
-    if (tabId === 'more') setShowMore(s => !s);
-    else { setShowMore(false); navigate(tabId); }
-  };
-
-  const openItem  = (item) => setDetailItem(item);
-  const closeItem = () => setDetailItem(null);
-  const activeTab = TAB_VIEW_MAP[view] || 'home';
+  const activeTab = TAB_MAP[view] || 'home';
 
   const renderContent = () => {
     switch (view) {
       case 'home':
-        return <StudentHome auth={auth} onNavigate={navigate} onNavigateToVendor={navigateToVendor} onAddToCart={addToCart} cartCount={cartCount} kitchenLoads={kitchenLoads} />;
+        return <StudentHome auth={auth} onNavigate={navigate} onNavigateToVendor={navigateToVendor} onAddToCart={addToCart} currentOrder={currentOrder} kitchenLoads={kitchenLoads} />;
       case 'menu':
-        return <StudentMenu cart={cart} onNavigate={navigate} onAddToCart={addToCart} updateQty={updateQty} favorites={favorites} onToggleFavorite={toggleFavorite} onOpenItem={openItem} initialVendor={menuVendor} onClearVendorFilter={() => setMenuVendor('all')} kitchenLoads={kitchenLoads} />;
+        return <StudentMenu cart={cart} onNavigate={navigate} onAddToCart={addToCart} updateQty={updateQty} onOpenItem={(item) => setDetailItem(item)} initialVendor={menuVendor} onClearVendorFilter={() => setMenuVendor('all')} kitchenLoads={kitchenLoads} />;
       case 'cart':
         return <StudentCart cart={cart} cartTotal={cartTotal} updateQty={updateQty} clearCart={clearCart} onPlaceOrder={placeOrder} onNavigate={navigate} kitchenLoads={kitchenLoads} />;
       case 'tracking':
         return <StudentTracking order={currentOrder} onNavigate={navigate} />;
-      case 'history':
-        return <StudentHistory orders={orderHistory} onReorder={reorder} onNavigate={navigate} />;
       case 'profile':
         return <StudentProfile auth={auth} onLogout={onLogout} orderHistory={orderHistory} onNavigate={navigate} />;
-      case 'notifications':
-        return <StudentNotifications onNavigate={navigate} />;
-      case 'reviews':
-        return <StudentReviews onNavigate={navigate} />;
-      case 'favorites':
-        return <StudentFavorites favorites={favorites} onAddToCart={addToCart} onToggleFavorite={toggleFavorite} onNavigate={navigate} onOpenItem={openItem} />;
-      case 'queue':
-        return <StudentQueue onNavigate={navigate} onNavigateToVendor={navigateToVendor} kitchenLoads={kitchenLoads} />;
-      case 'offers':
-        return <StudentOffers onAddToCart={addToCart} onNavigate={navigate} />;
-      case 'insights':
-        return <StudentInsights orderHistory={orderHistory} onNavigate={navigate} />;
-      case 'ai':
-        return <StudentAIRecommend onAddToCart={addToCart} favorites={favorites} onNavigate={navigate} />;
-      case 'complaint':
-        return <StudentComplaint onNavigate={navigate} />;
-      case 'zerowait':
-        return <ZeroWaitMode onAddToCart={addToCart} onNavigate={navigate} kitchenLoads={kitchenLoads} />;
-      case 'instant':
-        return <InstantDecision onAddToCart={addToCart} onNavigate={navigate} kitchenLoads={kitchenLoads} />;
       default:
         return null;
     }
@@ -225,7 +148,7 @@ function StudentDashboard({ auth, onLogout }) {
   return (
     <div className="student-app">
 
-      {/* Top bar */}
+      {/* ── Top Bar ── */}
       <header className="student-topbar">
         <div className="student-topbar-inner">
           <button
@@ -235,79 +158,74 @@ function StudentDashboard({ auth, onLogout }) {
           >
             <span>⏱️</span>
             <span className="student-topbar-name">Opti<span>Meal</span></span>
-            <span className="navbar-saas-label">SaaS</span>
           </button>
 
-          <div className="student-topbar-actions">
-            <button className="student-cart-btn" onClick={() => navigate('notifications')} id="notif-btn" title="Notifications" style={{ marginRight: '0.35rem' }}>
-              🔔
-              {unreadCount > 0 && <span className="student-cart-badge" style={{ background: 'var(--yellow)', color: '#000' }}>{unreadCount}</span>}
-            </button>
+          <div className="student-topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
             <button className="student-cart-btn" onClick={() => navigate('cart')} id="cart-icon-btn" title="View cart">
               🛒
               {cartCount > 0 && <span className="student-cart-badge">{cartCount}</span>}
+            </button>
+            <button
+              onClick={onLogout}
+              id="topbar-logout-btn"
+              title="Logout"
+              style={{
+                background: 'rgba(239,68,68,0.10)',
+                border: '1px solid rgba(239,68,68,0.25)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '0.4rem 0.7rem',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: 'var(--red)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.20)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.5)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.10)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.25)'; }}
+            >
+              ↩ Logout
             </button>
           </div>
         </div>
       </header>
 
-      {/* Content */}
-      <main className="student-content" style={{ paddingBottom: '120px' }}>{renderContent()}</main>
+      {/* ── Content ── */}
+      <main className="student-content" style={{ paddingBottom: '90px' }}>{renderContent()}</main>
 
-      {/* Item detail overlay */}
+      {/* ── Item detail overlay ── */}
       {detailItem && (
         <StudentItemDetail
-          item={detailItem} onClose={closeItem} onAddToCart={addToCart}
-          isFavorite={favorites.has(detailItem.id)} onToggleFavorite={toggleFavorite}
+          item={detailItem} onClose={() => setDetailItem(null)} onAddToCart={addToCart}
+          isFavorite={false} onToggleFavorite={() => {}}
         />
       )}
 
-      {/* More drawer */}
-      {showMore && (
-        <div className="more-drawer-overlay" onClick={() => setShowMore(false)}>
-          <div className="more-drawer" onClick={e => e.stopPropagation()}>
-            <div className="more-drawer-handle" />
-            <div className="more-drawer-grid">
-              {MORE_ITEMS.map(item => (
-                <button key={item.id} className="more-drawer-item" onClick={() => navigate(item.id)} id={`more-${item.id}`}>
-                  <span className="more-drawer-item-icon">{item.icon}</span>
-                  <span className="more-drawer-item-label">{item.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Toast */}
+      {/* ── Toast ── */}
       {toast && <div className="student-toast">{toast}</div>}
 
-      {/* Bottom nav */}
+      {/* ── Bottom Nav — 4 tabs only ── */}
       <nav className="student-bottom-nav" role="navigation" aria-label="Main navigation">
         {NAV_TABS.map(tab => (
           <button
             key={tab.id}
-            className={`bottom-tab ${activeTab === tab.id || (tab.id === 'more' && showMore) ? 'active' : ''}`}
-            onClick={() => handleTabClick(tab.id)}
+            className={`bottom-tab ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => navigate(tab.id)}
             id={`nav-${tab.id}`}
           >
             <span className="bottom-tab-icon">
-              {tab.id === 'more' ? (
-                <span style={{ display: 'inline-flex', gap: '2px', transform: 'scale(0.55)', color: 'currentColor' }}>
-                  {[0,1,2].map(i => <span key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: 'currentColor', display: 'inline-block' }} />)}
-                </span>
-              ) : tab.icon}
+              {tab.icon}
             </span>
             <span className="bottom-tab-label">{tab.label}</span>
-            {tab.id === 'menu' && cartCount > 0 && (
-              <span style={{ position: 'absolute', top: 6, right: '50%', transform: 'translateX(180%)', background: 'var(--accent)', color: 'var(--bg)', width: 16, height: 16, borderRadius: '50%', fontSize: '0.6rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {cartCount > 9 ? '9+' : cartCount}
-              </span>
-            )}
-            {tab.id === 'more' && unreadCount > 0 && (
-              <span style={{ position: 'absolute', top: 6, right: '50%', transform: 'translateX(80%)', background: 'var(--yellow)', color: '#000', width: 16, height: 16, borderRadius: '50%', fontSize: '0.6rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {unreadCount}
-              </span>
+            {tab.id === 'tracking' && currentOrder && (
+              <span style={{
+                position: 'absolute', top: 6, right: '50%', transform: 'translateX(150%)',
+                background: 'var(--green)', width: 8, height: 8, borderRadius: '50%',
+                animation: 'pulse-live 1.5s ease-in-out infinite',
+              }} />
             )}
           </button>
         ))}
