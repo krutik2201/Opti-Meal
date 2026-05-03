@@ -1,29 +1,23 @@
-# Dependencies
+# --- Frontend (Node.js/React) ---
 node_modules/
-.pnp
-.pnp.js
-venv/
-env/
-.env
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.pyc
-
-# Build outputs
 build/
 dist/
-coverage/
-
-# IDE and OS
-.DS_Store
-.idea/
-.vscode/
-*.swp
-
-# Logs
+.env
+.env.local
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+
+# --- Backend (Python/Flask) ---
+venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.db
+*.sqlite
+instance/
+
+# --- IDEs & OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

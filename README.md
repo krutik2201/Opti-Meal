@@ -1,103 +1,52 @@
 # 🚀 OptiMeal – Smart Queue & Food Optimization System
 
-OptiMeal is a high-performance, production-style campus food management platform. Unlike traditional food apps, it is a **Queue Intelligence System** designed to eliminate physical waiting lines and optimize kitchen throughput through predictive analytics and structured time slots.
+## 💡 Problem
+Campus canteens suffer from long queues, overcrowding, and inefficient order handling during peak hours. Physical waiting lines lead to student frustration and vendor burnout.
 
----
+## ✅ Solution
+OptiMeal is a **Smart Queue Management System** (not just a food ordering app) that:
+*   **Reduces Waiting Time**: Digital queuing means students only arrive when food is ready.
+*   **Time Slots**: Distributes order load across structured pickup windows.
+*   **Operational Efficiency**: Helps vendors handle rush periods smoothly with predictive insights.
 
-## 📖 What is OptiMeal about?
-In a busy campus environment, students waste 20-30 minutes daily standing in canteen queues. Vendors struggle with chaotic "rush hours," leading to order errors and food waste.
+## 🧠 Key Features
+*   **Live Queue Status**: Real-time wait time estimation (Low/Medium/High).
+*   **Quick Ordering**: One-click "Add to Cart" for popular, fast-prep items.
+*   **Vendor Kitchen Mode**: High-action dashboard for fast status updates (Accept → Prepare → Ready).
+*   **Admin Control Panel**: Full visibility into system health, revenue, and peak hour analytics.
 
-**OptiMeal solves this by:**
-* **Virtual Queuing**: Students join a digital queue and arrive only when their food is ready.
-* **Predictive Demand**: The system alerts students of "Peak Rush" before they order.
-* **Kitchen Balancing**: Vendors receive orders in a managed flow, preventing kitchen burnout.
-* **Time Certainty**: Every order comes with a guaranteed "Pickup Window."
+## 🏗️ Tech Stack
+*   **Frontend**: React.js with Recharts for data visualization.
+*   **Backend**: Flask (Python) with SQLAlchemy for robust data persistence.
+*   **UI/UX**: Custom CSS focusing on Glassmorphism and modern aesthetics.
 
----
+## 🎯 Core Idea
+> **This is NOT a food ordering app.**
+> It is a **Queue Optimization System** designed to eliminate physical lines and maximize canteen throughput.
 
-## 👥 Who is this for? (Roles)
-The system is built for a three-tier ecosystem:
-1. **Students**: Who want to skip the line and save time.
-2. **Vendors (Canteens/Cafes)**: Who need to manage high-volume orders during peak hours without stress.
-3. **Campus Admins**: Who need bird's-eye visibility into canteen performance and student satisfaction.
-
----
-
-## 🛠️ How it is Made (Architecture)
-OptiMeal is built using a modern, scalable full-stack architecture:
-
-* **Frontend**: Built with **React.js**. It features a "Kitchen Mode" for vendors (high-contrast, fast-action) and a "Consumer Mode" for students (clean, visual, and simple).
-* **Backend**: Powered by **Flask (Python)**, providing a robust REST API for order processing and queue calculations.
-* **Analytics**: Integration of **Recharts** for real-time demand visualization in the Admin and Vendor dashboards.
-* **Design System**: A custom-built CSS framework focusing on **Glassmorphism** and **High-Accessibility** for high-pressure kitchen environments.
-* **Data Flow**: Optimized state management using a sync layer that demonstrates real-time order movement from Student → Vendor → Admin.
-
----
-
-## 📋 Essential Things Needed (Prerequisites)
-Before running the project, ensure you have the following installed:
-* **Node.js** (v16 or higher)
-* **Python** (v3.8 or higher)
-* **npm** or **yarn**
-* **Git**
-
----
+## 📸 Screenshots
+*(Coming soon - Add your local screenshots here)*
 
 ## 🚀 How to Run
 
-### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/<your-username>/optimeal-smart-queue-system.git
-cd optimeal-smart-queue-system
-```
-
-### 2️⃣ Setup Backend (Flask)
+### 1. Backend (Flask)
 ```bash
 cd backend
-# Create a virtual environment (optional but recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Start the server
 python app.py
 ```
-*The backend will run on `http://localhost:5000`*
 
-### 3️⃣ Setup Frontend (React)
+### 2. Frontend (React)
 ```bash
-cd ../frontend
-
-# Install dependencies
+cd frontend
 npm install
-
-# Start the application
 npm start
 ```
-*The application will open on `http://localhost:3000`*
+
+## 🚀 Future Scope
+*   **Predictive AI**: Forecasting demand based on historical campus patterns.
+*   **Smart Recommendations**: Suggesting vendors with the lowest current wait time.
+*   **Advanced Analytics**: Deep waste analysis and vendor performance tracking.
 
 ---
-
-## 📸 System Previews
-
-### 🧑‍🎓 Student Home & Live Queue status
-![Student Home](docs/screenshots/student_home.png)
-
-### 👨‍🍳 Vendor Kitchen Mode (One-Click Flow)
-![Vendor Dashboard](docs/screenshots/vendor_dashboard.png)
-
-### 🛡️ Admin Control Panel & Analytics
-![Admin Dashboard](docs/screenshots/admin_dashboard.png)
-
----
-
-## 🎯 Future Roadmap
-* **AI-Powered Demand Forecast**: Predicting the next hour's load based on campus schedules.
-* **IoT Integration**: Smart buzzers/notifications for food pickup.
-* **Multi-College SaaS Model**: Scalable architecture to support multiple campuses on one platform.
-
----
-
-*Developed with the goal of creating "Time-Certainty" in every campus meal.*
+*Built with the goal of creating "Time-Certainty" in every campus meal.*

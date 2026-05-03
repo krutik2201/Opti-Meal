@@ -1,39 +1,37 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const STEPS = [
-  { key: 'Pending',   label: 'Pending',      icon: '📋' },
-  { key: 'Preparing', label: 'Preparing',     icon: '👨‍🍳' },
-  { key: 'Ready',     label: 'Ready!',        icon: '✅' },
+  { key: 'pending',   label: 'Pending',      icon: '📋' },
+  { key: 'preparing', label: 'Preparing',     icon: '👨‍🍳' },
+  { key: 'ready',     label: 'Ready!',        icon: '✅' },
 ];
 
 function StudentTracking({ order, onNavigate }) {
   const [statusIdx, setStatusIdx] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(order?.express ? 300 : 480);
+  const [timeLeft, setTimeLeft] = useState(0);
   const timerRef = useRef(null);
-  const simRef = useRef(null);
 
   useEffect(() => {
     if (!order) return;
     
     let initialIdx = 0;
-    if (order.status === 'Preparing') initialIdx = 1;
-    if (order.status === 'Ready') initialIdx = 2;
+    if (order.status === 'preparing') initialIdx = 1;
+    if (order.status === 'ready' || order.status === 'completed') initialIdx = 2;
     setStatusIdx(initialIdx);
-    setTimeLeft(order.express ? 300 : 480);
 
-    if (initialIdx === 0 && order.status === 'Pending') {
-      simRef.current = setTimeout(() => {
-        if (order.status === 'Pending') setStatusIdx(1);
-      }, 8000);
-      const readyTimer = setTimeout(() => {
-        if (order.status !== 'Ready') setStatusIdx(2);
-      }, 18000);
-      return () => { clearTimeout(simRef.current); clearTimeout(readyTimer); };
+    // Use API estimate
+    if (order.estimated_ready_mins) {
+      setTimeLeft(order.estimated_ready_mins * 60);
+    } else {
+      setTimeLeft(order.is_express ? 300 : 480);
     }
   }, [order]);
 
   useEffect(() => {
-    if (statusIdx >= 2) { clearInterval(timerRef.current); return; }
+    if (statusIdx >= 2) { 
+        if (timerRef.current) clearInterval(timerRef.current); 
+        return; 
+    }
     timerRef.current = setInterval(() => setTimeLeft(t => {
       if (t <= 1) { clearInterval(timerRef.current); return 0; }
       return t - 1;
@@ -69,10 +67,10 @@ function StudentTracking({ order, onNavigate }) {
         <div>
           <h1 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '0.2rem' }}>Order Tracking</h1>
           <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-            {order.id} · Slot: {order.pickupSlot}
+            #{order.order_id} · Slot: {order.pickup_slot}
           </div>
         </div>
-        {order.express && (
+        {order.is_express && (
           <span style={{ background: 'var(--accent)', color: '#000', fontSize: '0.7rem', fontWeight: 900, padding: '0.25rem 0.65rem', borderRadius: '8px' }}>⚡ EXPRESS</span>
         )}
       </div>
@@ -103,6 +101,7 @@ function StudentTracking({ order, onNavigate }) {
                 <span style={{
                   fontSize: '0.72rem', fontWeight: 700,
                   color: isDone ? 'var(--green)' : isActive ? 'var(--accent)' : 'var(--text-muted)',
+                  textTransform: 'capitalize'
                 }}>{step.label}</span>
               </div>
               {idx < STEPS.length - 1 && (
@@ -144,7 +143,6 @@ function StudentTracking({ order, onNavigate }) {
             {statusIdx === 0 ? '⏳ Your order is being confirmed…' : '👨‍🍳 Kitchen is preparing your food…'}
           </div>
 
-          {/* Progress bar */}
           <div style={{ margin: '1.25rem 1rem 0', height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
             <div style={{
               height: '100%', borderRadius: 99,
@@ -165,13 +163,12 @@ function StudentTracking({ order, onNavigate }) {
           <div style={{ fontSize: '3rem', marginBottom: '0.5rem', animation: 'bounce 0.8s ease' }}>🎉</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.4rem' }}>Your order is ready!</div>
           <div style={{ fontSize: '1.05rem', color: 'var(--green)', fontWeight: 700, marginBottom: '0.5rem' }}>
-            Pick up at Counter {order.counter}
+            Pick up at the Counter
           </div>
           <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
             Please collect within 10 minutes
           </div>
 
-          {/* ── WOW FEATURE: Time Saved ── */}
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
             background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)',
@@ -181,7 +178,7 @@ function StudentTracking({ order, onNavigate }) {
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>TIME SAVED WITH OPTIMEAL</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--green)' }}>
-                You saved {order.express ? '12' : '8'} minutes!
+                Queue avoided successfully!
               </div>
             </div>
           </div>
@@ -204,17 +201,16 @@ function StudentTracking({ order, onNavigate }) {
             borderBottom: i < order.items.length - 1 ? '1px solid var(--border)' : 'none',
             fontSize: '0.88rem',
           }}>
-            <span>{item.emoji} {item.qty}× {item.name}</span>
-            <span style={{ color: 'var(--accent)', fontWeight: 600 }}>₹{item.price * item.qty}</span>
+            <span>{item.quantity}× {item.name}</span>
+            <span style={{ color: 'var(--accent)', fontWeight: 600 }}>₹{item.price * item.quantity}</span>
           </div>
         ))}
         <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem', fontWeight: 700, fontSize: '1rem' }}>
           <span>Total</span>
-          <span style={{ color: 'var(--accent)' }}>₹{order.total}</span>
+          <span style={{ color: 'var(--accent)' }}>₹{order.total_price}</span>
         </div>
       </div>
 
-      {/* Actions */}
       <div style={{ display: 'flex', gap: '0.75rem' }}>
         <button
           className="btn btn-primary"

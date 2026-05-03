@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { PLATFORM_SUMMARY as ps, ADMIN_VENDORS, HOURLY_ORDERS, SMART_ALERTS } from './admin/adminData';
+import { getAdminDashboardData } from '../services/api';
 import '../styles.css';
 
 const C = {
@@ -23,12 +23,30 @@ const CustomTooltip = ({ active, payload }) => {
 function AdminDashboard({ auth, onLogout }) {
   const [page, setPage] = useState('overview');
   const [time, setTime] = useState(new Date());
-  const [alerts, setAlerts] = useState(SMART_ALERTS.filter(a => a.type !== 'info'));
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
+  const fetchData = async () => {
+    try {
+      const res = await getAdminDashboardData();
+      setData(res);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const topVendor = ADMIN_VENDORS.find(v => v.id === 'v10') || ADMIN_VENDORS[0];
-  const lowVendor = ADMIN_VENDORS.find(v => v.id === 'v8') || ADMIN_VENDORS[7];
+  useEffect(() => {
+    fetchData();
+    const t = setInterval(() => setTime(new Date()), 1000);
+    const poller = setInterval(fetchData, 30000); // refresh every 30s
+    return () => { clearInterval(t); clearInterval(poller); };
+  }, []);
+
+  if (loading && !data) return <div style={{ display:'flex', height:'100vh', alignItems:'center', justifyContent:'center', background:'#020617', color:'#fff' }}>Loading Admin Control Panel...</div>;
 
   const Nav = ({ id, label, icon, badge }) => (
     <button onClick={() => setPage(id)} style={{
@@ -61,7 +79,7 @@ function AdminDashboard({ auth, onLogout }) {
           <Nav id="overview" label="Overview" icon="📊" />
           <Nav id="insights" label="System Insights" icon="📈" />
           <Nav id="vendors" label="Vendor Status" icon="🏪" />
-          <Nav id="alerts" label="Alerts" icon="⚠️" badge={alerts.length} />
+          <Nav id="alerts" label="Alerts" icon="⚠️" badge={0} />
         </nav>
 
         <div style={{ padding: '0.75rem 1rem', borderTop: `1px solid ${C.border}` }}>
@@ -100,18 +118,19 @@ function AdminDashboard({ auth, onLogout }) {
         </header>
 
         <div style={{ padding: '2rem 2.5rem', maxWidth: 1300 }}>
+          {error && <div style={{ background:C.red+'10', border:`1px solid ${C.red}30`, padding:'1rem', borderRadius:12, color:C.red, marginBottom:'1.5rem', fontWeight:700 }}>⚠️ {error}</div>}
 
           {/* ════ PAGE: OVERVIEW ════ */}
-          {page === 'overview' && (
+          {page === 'overview' && data && (
             <div>
               {/* 5 Metric Cards */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1.15rem', marginBottom: '2.5rem' }}>
                 {[
-                  { label: 'Orders Today', value: ps.totalOrdersToday.toLocaleString(), color: C.blue, icon: '📦' },
-                  { label: 'Active Orders', value: ps.activeOrders, color: C.yellow, icon: '⚡' },
-                  { label: 'Total Vendors', value: ps.totalVendors, color: C.green, icon: '🏪' },
-                  { label: 'Total Students', value: (ps.totalStudents / 1000).toFixed(1) + 'K', color: C.purple, icon: '🎓' },
-                  { label: 'Revenue Today', value: '₹' + Math.round(ps.totalRevenueMRR / 30).toLocaleString(), color: C.green, icon: '💰' },
+                  { label: 'Orders Today', value: data.total_orders_today, color: C.blue, icon: '📦' },
+                  { label: 'Active Orders', value: data.active_orders, color: C.yellow, icon: '⚡' },
+                  { label: 'Total Vendors', value: data.vendors_count, color: C.green, icon: '🏪' },
+                  { label: 'Total Students', value: '2.5K', color: C.purple, icon: '🎓' },
+                  { label: 'Revenue Today', value: '₹' + data.total_revenue.toLocaleString(), color: C.green, icon: '💰' },
                 ].map(m => (
                   <div key={m.label} style={{ ...card(), textAlign: 'center', transition: 'transform 0.2s', cursor: 'default' }}
                     onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-3px)'}
@@ -128,10 +147,9 @@ function AdminDashboard({ auth, onLogout }) {
                 <div style={card()}>
                   <h3 style={{ margin: '0 0 1.25rem', fontWeight: 800, fontSize: '1.05rem' }}>📊 Performance Summary</h3>
                   {[
-                    { icon: '🔥', label: 'Top Vendor', value: topVendor.name, color: C.green, bg: 'rgba(16,185,129,0.06)' },
-                    { icon: '⚠️', label: 'Low Performing', value: lowVendor.name, color: C.red, bg: 'rgba(239,68,68,0.06)' },
-                    { icon: '🍔', label: 'Most Ordered', value: 'Samosa', color: C.green, bg: 'rgba(16,185,129,0.06)' },
-                    { icon: '📉', label: 'Least Ordered', value: 'Burger', color: C.red, bg: 'rgba(239,68,68,0.06)' },
+                    { icon: '🔥', label: 'Top Item', value: data.top_items[0]?.name || 'N/A', color: C.green, bg: 'rgba(16,185,129,0.06)' },
+                    { icon: '🍔', label: 'Demand', value: data.top_items[0]?.count ? `${data.top_items[0].count} units` : '0 units', color: C.green, bg: 'rgba(16,185,129,0.06)' },
+                    { icon: '📉', label: 'Avg Wait', value: '8.5 min', color: C.blue, bg: 'rgba(59,130,246,0.06)' },
                   ].map(s => (
                     <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.7rem 0.9rem', borderRadius: 12, background: s.bg, marginBottom: '0.6rem' }}>
                       <span style={{ fontSize: '1.1rem' }}>{s.icon}</span>
@@ -143,11 +161,9 @@ function AdminDashboard({ auth, onLogout }) {
                 <div style={card()}>
                   <h3 style={{ margin: '0 0 1.25rem', fontWeight: 800, fontSize: '1.05rem' }}>🧠 Smart Insights</h3>
                   {[
-                    { icon: '🚀', text: 'Peak rush at 12:30 PM today', color: C.blue },
-                    { icon: '🥐', text: 'High demand for quick snacks', color: C.yellow },
-                    { icon: '📉', text: 'Low activity expected after 2 PM', color: '#64748b' },
-                    { icon: '📊', text: `Peak hour: ${ps.peakHour}`, color: C.blue },
-                    { icon: '🏫', text: `Most active: ${ps.mostActiveCollege}`, color: C.green },
+                    { icon: '🚀', text: 'Peak rush expected at 12:30 PM', color: C.blue },
+                    { icon: '🥐', text: `Most popular today: ${data.top_items[0]?.name || '...'}`, color: C.yellow },
+                    { icon: '📊', text: `${data.active_orders} orders being prepared`, color: C.green },
                   ].map((s, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', padding: '0.65rem 0.85rem', borderRadius: 12, background: 'rgba(255,255,255,0.02)', marginBottom: '0.5rem' }}>
                       <span style={{ fontSize: '1rem' }}>{s.icon}</span>
@@ -160,7 +176,7 @@ function AdminDashboard({ auth, onLogout }) {
           )}
 
           {/* ════ PAGE: SYSTEM INSIGHTS ════ */}
-          {page === 'insights' && (
+          {page === 'insights' && data && (
             <div>
               {/* Graph */}
               <div style={{ ...card(), padding: '2rem', marginBottom: '1.5rem' }}>
@@ -169,11 +185,11 @@ function AdminDashboard({ auth, onLogout }) {
                     <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Orders Throughout the Day</h3>
                     <p style={{ margin: '3px 0 0', fontSize: '0.72rem', color: '#64748b' }}>Identify peak hours and system load</p>
                   </div>
-                  <span style={{ background: 'rgba(59,130,246,0.1)', color: C.blue, padding: '4px 12px', borderRadius: 8, fontSize: '0.68rem', fontWeight: 800 }}>PEAK: {ps.peakHour}</span>
+                  <span style={{ background: 'rgba(59,130,246,0.1)', color: C.blue, padding: '4px 12px', borderRadius: 8, fontSize: '0.68rem', fontWeight: 800 }}>LIVE TRACKING</span>
                 </div>
                 <div style={{ height: 320 }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={HOURLY_ORDERS}>
+                    <AreaChart data={data.peak_hour_data}>
                       <defs>
                         <linearGradient id="aGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor={C.blue} stopOpacity={0.35} />
@@ -189,99 +205,33 @@ function AdminDashboard({ auth, onLogout }) {
                   </ResponsiveContainer>
                 </div>
               </div>
-
-              {/* Summary Cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.15rem' }}>
-                {[
-                  { label: 'Peak Hour', value: ps.peakHour, icon: '⏰', color: C.blue },
-                  { label: 'Avg Rating', value: ps.avgRating + '★', icon: '⭐', color: C.yellow },
-                  { label: 'Monthly Growth', value: '+' + ps.monthlyGrowth + '%', icon: '📈', color: C.green },
-                  { label: 'Complaints', value: ps.totalComplaints, icon: '📋', color: C.red },
-                ].map(s => (
-                  <div key={s.label} style={{ ...card(), textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.3rem', marginBottom: '0.4rem' }}>{s.icon}</div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: s.color, marginBottom: '0.3rem' }}>{s.value}</div>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 
           {/* ════ PAGE: VENDOR STATUS ════ */}
-          {page === 'vendors' && (
+          {page === 'vendors' && data && (
             <div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {ADMIN_VENDORS.map(v => {
-                  const isInactive = v.status === 'Inactive';
-                  const isBusy = v.orders > 150;
-                  const isWarning = v.status === 'Warning';
-                  const statusLabel = isInactive ? 'Inactive' : isWarning ? 'Warning' : isBusy ? 'Busy' : 'Normal';
-                  const statusColor = isInactive ? '#64748b' : isWarning ? C.yellow : isBusy ? C.red : C.green;
-
+                {data.vendor_performance.map(v => {
+                  const statusColor = v.rush_level === 'High' ? C.red : v.rush_level === 'Medium' ? C.yellow : C.green;
                   return (
-                    <div key={v.id} style={{ ...card(), display: 'flex', alignItems: 'center', gap: '1.25rem', opacity: isInactive ? 0.5 : 1 }}>
+                    <div key={v.name} style={{ ...card(), display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
                       <div style={{ width: 44, height: 44, borderRadius: 12, background: `${statusColor}10`, border: `1px solid ${statusColor}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 900, color: statusColor, flexShrink: 0 }}>{v.name.charAt(0)}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.15rem' }}>{v.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{v.college} · Rating: {v.rating}★ · {v.complaints} complaints</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Current Wait: {v.current_wait} mins</div>
                       </div>
                       <div style={{ textAlign: 'right', minWidth: 90 }}>
                         <div style={{ fontSize: '1.1rem', fontWeight: 800, color: C.blue }}>{v.orders}</div>
-                        <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>orders</div>
+                        <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>orders today</div>
                       </div>
-                      <div style={{ width: 100 }}>
-                        <div style={{ height: 6, borderRadius: 99, background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${Math.min((v.orders / 220) * 100, 100)}%`, background: statusColor, borderRadius: 99, transition: 'width 0.5s' }} />
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right', minWidth: 80 }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: C.green }}>₹{(v.revenue / 1000).toFixed(0)}K</div>
-                        <div style={{ fontSize: '0.6rem', color: '#64748b' }}>revenue</div>
-                      </div>
-                      <span style={{ fontSize: '0.62rem', fontWeight: 900, padding: '4px 12px', borderRadius: 6, textTransform: 'uppercase', background: `${statusColor}12`, color: statusColor, border: `1px solid ${statusColor}25`, minWidth: 65, textAlign: 'center' }}>{statusLabel}</span>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 900, padding: '4px 12px', borderRadius: 6, textTransform: 'uppercase', background: `${statusColor}12`, color: statusColor, border: `1px solid ${statusColor}25`, minWidth: 65, textAlign: 'center' }}>{v.rush_level}</span>
                     </div>
                   );
                 })}
               </div>
             </div>
           )}
-
-          {/* ════ PAGE: ALERTS ════ */}
-          {page === 'alerts' && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <h3 style={{ margin: 0, fontWeight: 800 }}>System Notifications</h3>
-                <button onClick={() => setAlerts([])} style={{ background: 'none', border: 'none', color: C.blue, fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'inherit' }}>Clear All</button>
-              </div>
-              {alerts.length === 0 ? (
-                <div style={{ ...card(), textAlign: 'center', padding: '5rem', borderStyle: 'dashed' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✨</div>
-                  <div style={{ fontWeight: 800, color: C.green, fontSize: '1.1rem' }}>All systems clear!</div>
-                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.3rem' }}>No warnings at this time</div>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  {alerts.map(a => {
-                    const isUrgent = a.type === 'danger';
-                    const aColor = isUrgent ? C.red : C.yellow;
-                    return (
-                      <div key={a.id} style={{ ...card(), padding: '1.5rem', background: `${aColor}06`, borderLeft: `4px solid ${aColor}`, display: 'flex', gap: '1.25rem', position: 'relative' }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: `${aColor}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', flexShrink: 0 }}>{isUrgent ? '🔴' : '🟡'}</div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '1rem', fontWeight: 800, color: aColor, marginBottom: '0.35rem' }}>{a.title}</div>
-                          <div style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.6 }}>{a.body}</div>
-                          <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#475569', marginTop: '0.6rem', textTransform: 'uppercase' }}>Detected {a.time}</div>
-                        </div>
-                        <button onClick={() => setAlerts(p => p.filter(x => x.id !== a.id))} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#475569', cursor: 'pointer', fontSize: '1.1rem' }}>✕</button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
         </div>
       </main>
     </div>

@@ -7,6 +7,7 @@ import StudentTracking from './student/StudentTracking';
 import StudentProfile  from './student/StudentProfile';
 import StudentItemDetail from './student/StudentItemDetail';
 
+import { placeOrder as apiPlaceOrder, trackOrder as apiTrackOrder } from '../services/api';
 import { MOCK_PAST_ORDERS, MENU_ITEMS, VENDORS } from './student/data';
 import '../styles.css';
 
@@ -33,8 +34,10 @@ function StudentDashboard({ auth, onLogout }) {
   const [toast, setToast] = useState('');
   const [detailItem, setDetailItem] = useState(null);
   const [menuVendor, setMenuVendor] = useState('all');
+  
+  const studentId = auth?.studentId || 101; // Mock student ID for demo
 
-  /* ── Simulated live kitchen loads ── */
+  /* ── Simulated live kitchen loads (Still useful for UI demo) ── */
   const [kitchenLoads, setKitchenLoads] = useState(
     Object.fromEntries(VENDORS.map(v => [v.id, v.kitchenLoad]))
   );
@@ -53,19 +56,22 @@ function StudentDashboard({ auth, onLogout }) {
     return () => clearInterval(tick);
   }, []);
 
-  /* ── Poll for order updates from Vendor ── */
+  /* ── Poll for order updates from Backend API ── */
   useEffect(() => {
-    if (!currentOrder) return;
-    const poll = setInterval(() => {
-      const shared = JSON.parse(localStorage.getItem('optimeal_shared_orders') || '[]');
-      const updated = shared.find(o => o.id === currentOrder.id);
-      if (updated && updated.status !== currentOrder.status) {
-        setCurrentOrder(updated);
-        if (updated.status === 'Ready') {
-          showToast(`✅ Your order ${updated.id} is Ready!`);
+    if (!currentOrder?.order_id) return;
+    const poll = setInterval(async () => {
+      try {
+        const updated = await apiTrackOrder(currentOrder.order_id);
+        if (updated && updated.status !== currentOrder.status) {
+          setCurrentOrder(updated);
+          if (updated.status === 'ready') {
+            showToast(`✅ Your order #${updated.order_id} is Ready!`);
+          }
         }
+      } catch (err) {
+        console.error("Poll error:", err);
       }
-    }, 1000);
+    }, 3000);
     return () => clearInterval(poll);
   }, [currentOrder]);
 
@@ -98,29 +104,25 @@ function StudentDashboard({ auth, onLogout }) {
   };
 
   /* ── Place order ── */
-  const placeOrder = ({ timeSlot, express, readyTime, confidence, kitchenLoad }) => {
-    const order = {
-      id: `#OM-${Math.floor(Math.random() * 900) + 100}`,
-      date: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-      items: cart.map(({ item, qty }) => ({ name: item.name, qty, price: item.price, emoji: item.emoji })),
-      total: cartTotal + (express ? 10 : 0),
-      status: 'Pending',
-      pickupSlot: timeSlot,
-      counter: Math.ceil(Math.random() * 3),
-      express,
-      readyTime,
-      confidence,
-      kitchenLoad: kitchenLoad || 60,
+  const placeOrder = async ({ timeSlot, express }) => {
+    const orderData = {
+      student_id: studentId,
+      vendor_id: cart[0]?.item?.vendorId || 1, // Assume one vendor per order for MVP
+      items: cart.map(({ item, qty }) => ({ name: item.name, quantity: qty, price: item.price })),
+      pickup_slot: timeSlot,
+      is_express: express
     };
     
-    // Sync to localStorage for Vendor dashboard
-    const existing = JSON.parse(localStorage.getItem('optimeal_shared_orders') || '[]');
-    localStorage.setItem('optimeal_shared_orders', JSON.stringify([...existing, order]));
-
-    setCurrentOrder(order);
-    setOrderHistory(prev => [order, ...prev]);
-    clearCart();
-    navigate('tracking');
+    try {
+      const res = await apiPlaceOrder(orderData);
+      setCurrentOrder(res);
+      setOrderHistory(prev => [res, ...prev]);
+      clearCart();
+      navigate('tracking');
+      showToast("🚀 Order placed successfully!");
+    } catch (err) {
+      alert("Failed to place order: " + err.message);
+    }
   };
 
   /* ── Navigation ── */

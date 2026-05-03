@@ -1,124 +1,59 @@
-"""
-OptiMeal - Flask Application Entry Point
-==========================================
-This file creates and configures the Flask application.
-
-Responsibilities:
-- Load configuration from config.py
-- Register all route blueprints under /api
-- Add a root health-check endpoint
-- Enable CORS (cross-origin requests from the React frontend)
-
-Run locally:
-    python app.py
-
-Or with Flask CLI:
-    $env:FLASK_ENV="development"
-    flask run --port 5000
-"""
-
 from flask import Flask, jsonify
 from flask_cors import CORS
+import os
 
-from config import ActiveConfig
-from routes.predict import predict_bp
-from routes.waste   import waste_bp
-from routes.data    import data_bp
-from routes.shops   import shops_bp
-
+from models import db, Vendor, MenuItem
+from routes.orders import orders_bp
 
 def create_app():
-    """
-    Application factory pattern.
-    Creates and returns a fully configured Flask app instance.
-    """
     app = Flask(__name__)
+    
+    # Configuration
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'optimeal.db')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'dev-key-123'
 
-    # Load configuration
-    app.config.from_object(ActiveConfig)
+    # Plugins
+    CORS(app)
+    db.init_app(app)
 
-    # Allow cross-origin requests from the React frontend on port 3000
-    # Allow cross-origin requests from ANY origin on ALL routes.
-    # This prevents CORS errors for both /api/* and /health.
-    CORS(app,
-         resources={r"/*": {"origins": "*"}},
-         allow_headers=["Content-Type", "Authorization"],
-         methods=["GET", "POST", "OPTIONS"])
+    # Blueprints
+    app.register_blueprint(orders_bp, url_prefix="/api")
 
-    # -------------------------------------------------------------------------
-    # Register Blueprints — all routes are namespaced under /api
-    # -------------------------------------------------------------------------
-    app.register_blueprint(predict_bp, url_prefix="/api")
-    app.register_blueprint(waste_bp,   url_prefix="/api")
-    app.register_blueprint(data_bp,    url_prefix="/api")
-    app.register_blueprint(shops_bp,   url_prefix="/api")
+    # Initialize Database & Seed Data
+    with app.app_context():
+        db.create_all()
+        seed_data()
 
-    # -------------------------------------------------------------------------
-    # Root Health Check Endpoint
-    # -------------------------------------------------------------------------
-    @app.route("/health", methods=["GET"])
+    @app.route("/health")
     def health():
-        """
-        Lightweight status check.
-        Can be used by load balancers or CI pipelines to verify the server is up.
-        """
-        return jsonify({
-            "status": "healthy",
-            "project": "OptiMeal – Food Demand & Waste Optimization System",
-            "version": "1.0.0",
-        }), 200
-
-    # -------------------------------------------------------------------------
-    # API Index — lists all available endpoints
-    # -------------------------------------------------------------------------
-    @app.route("/api", methods=["GET"])
-    def api_index():
-        """Returns a directory of all available API endpoints."""
-        return jsonify({
-            "message": "Welcome to the OptiMeal SaaS API",
-            "version": "2.0.0",
-            "endpoints": {
-                "health_check":         "GET  /health",
-                "predict_single":       "POST /api/predict",
-                "predict_batch":        "POST /api/predict  (body: {items:[...]})",
-                "waste_analysis":       "POST /api/waste-analysis",
-                "all_data":             "GET  /api/data",
-                "data_by_item":         "GET  /api/data/<item_name>",
-                "all_shops":            "GET  /api/shops",
-                "shop_detail":          "GET  /api/shops/<shop_id>",
-                "admin_analytics":      "GET  /api/analytics",
-            },
-        }), 200
-
-    # -------------------------------------------------------------------------
-    # Global Error Handlers
-    # -------------------------------------------------------------------------
-    @app.errorhandler(404)
-    def not_found(e):
-        return jsonify({"error": "Endpoint not found.", "hint": "Check /api for the list of available endpoints."}), 404
-
-    @app.errorhandler(405)
-    def method_not_allowed(e):
-        return jsonify({"error": "HTTP method not allowed on this endpoint."}), 405
-
-    @app.errorhandler(500)
-    def internal_error(e):
-        return jsonify({"error": "An internal server error occurred."}), 500
+        return jsonify({"status": "healthy", "service": "OptiMeal Core API"}), 200
 
     return app
 
+def seed_data():
+    """Seeds initial vendors and menu items if they don't exist."""
+    if Vendor.query.first():
+        return # Already seeded
+    
+    v1 = Vendor(name="Main Canteen", college="IIT Bombay", emoji="🍛")
+    v2 = Vendor(name="Campus Café", college="IIT Bombay", emoji="☕")
+    v3 = Vendor(name="Juice Center", college="BITS Pilani", emoji="🥤")
+    
+    db.session.add_all([v1, v2, v3])
+    db.session.commit()
+    
+    m1 = MenuItem(vendor_id=v1.id, name="Samosa", price=20, prep_time=5, emoji="🥟")
+    m2 = MenuItem(vendor_id=v1.id, name="Veg Thali", price=80, prep_time=12, emoji="🍱")
+    m3 = MenuItem(vendor_id=v2.id, name="Sandwich", price=45, prep_time=7, emoji="🥪")
+    m4 = MenuItem(vendor_id=v2.id, name="Masala Tea", price=15, prep_time=3, emoji="☕")
+    m5 = MenuItem(vendor_id=v3.id, name="Mango Shake", price=50, prep_time=5, emoji="🥭")
+    
+    db.session.add_all([m1, m2, m3, m4, m5])
+    db.session.commit()
+    print("Database seeded successfully!")
 
-# ---------------------------------------------------------------------------
-# App Entry Point
-# ---------------------------------------------------------------------------
 if __name__ == "__main__":
     app = create_app()
-    print("\n" + "=" * 60)
-    print("  OptiMeal Backend is running!")
-    print("  API Root   : http://127.0.0.1:5000/api")
-    print("  Health     : http://127.0.0.1:5000/health")
-    print("  Predict    : POST http://127.0.0.1:5000/api/predict")
-    print("  Waste      : POST http://127.0.0.1:5000/api/waste-analysis")
-    print("  Data       : GET  http://127.0.0.1:5000/api/data")
-    print("=" * 60 + "\n")
-    app.run(debug=ActiveConfig.DEBUG, port=5000)
+    app.run(debug=True, port=5000)
