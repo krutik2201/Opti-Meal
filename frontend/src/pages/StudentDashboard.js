@@ -63,9 +63,15 @@ function StudentDashboard({ auth, onLogout }) {
       try {
         const updated = await apiTrackOrder(currentOrder.order_id);
         if (updated && updated.status !== currentOrder.status) {
-          setCurrentOrder(updated);
-          if (updated.status === 'ready') {
-            showToast(`✅ Your order #${updated.order_id} is Ready!`);
+          if (updated.status === 'completed') {
+            showToast(`🎉 Order #${updated.order_id || updated.id} Completed!`);
+            setCurrentOrder(null);
+            navigate('home');
+          } else {
+            setCurrentOrder(updated);
+            if (updated.status === 'ready') {
+              showToast(`✅ Your order #${updated.order_id || updated.id} is Ready!`);
+            }
           }
         }
       } catch (err) {
