@@ -183,13 +183,14 @@ function StudentHome({ auth, onNavigate, onNavigateToVendor, onAddToCart, curren
                 {currentOrder.items.map(i => i.name).join(', ')}
               </div>
               <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                {currentOrder.id} · ₹{currentOrder.total}
+                #{currentOrder.order_id || currentOrder.id} · ₹{currentOrder.total_price || currentOrder.total}
               </div>
             </div>
             <div style={{
-              background: currentOrder.status === 'Ready' ? 'var(--green)' : currentOrder.status === 'Preparing' ? 'var(--yellow)' : 'var(--accent)',
+              background: (currentOrder.status||'').toLowerCase() === 'ready' ? 'var(--green)' : (currentOrder.status||'').toLowerCase() === 'preparing' ? 'var(--yellow)' : 'var(--accent)',
               color: '#000', padding: '0.3rem 0.75rem', borderRadius: 99,
               fontSize: '0.72rem', fontWeight: 800, flexShrink: 0,
+              textTransform: 'capitalize'
             }}>
               {currentOrder.status}
             </div>
@@ -199,7 +200,7 @@ function StudentHome({ auth, onNavigate, onNavigateToVendor, onAddToCart, curren
           <div style={{ marginTop: '0.75rem', height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
             <div style={{
               height: '100%', borderRadius: 99,
-              width: currentOrder.status === 'Pending' ? '25%' : currentOrder.status === 'Preparing' ? '60%' : '100%',
+              width: (currentOrder.status||'').toLowerCase() === 'pending' ? '25%' : (currentOrder.status||'').toLowerCase() === 'preparing' ? '60%' : '100%',
               background: 'linear-gradient(90deg, var(--green), var(--accent))',
               transition: 'width 1s ease',
             }} />
@@ -207,7 +208,7 @@ function StudentHome({ auth, onNavigate, onNavigateToVendor, onAddToCart, curren
 
           {/* Time estimate */}
           <div style={{ marginTop: '0.6rem', fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-            {currentOrder.status === 'Ready' ? '✅ Ready for pickup!' : currentOrder.status === 'Preparing' ? '👨‍🍳 Ready in ~5 min' : '⏳ Waiting for confirmation...'}
+            {(currentOrder.status||'').toLowerCase() === 'ready' ? '✅ Ready for pickup!' : (currentOrder.status||'').toLowerCase() === 'preparing' ? '👨‍🍳 Ready in ~5 min' : '⏳ Waiting for confirmation...'}
           </div>
         </div>
       )}

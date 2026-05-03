@@ -105,9 +105,14 @@ function StudentDashboard({ auth, onLogout }) {
 
   /* ── Place order ── */
   const placeOrder = async ({ timeSlot, express }) => {
+    // Map string IDs to backend integer IDs
+    const vendorMap = { 'canteen': 1, 'cafe': 2, 'juice': 3, 'snacks': 4 };
+    const rawVendorId = cart[0]?.item?.vendorId || 'canteen';
+    const dbVendorId = vendorMap[rawVendorId] || 1;
+
     const orderData = {
-      student_id: studentId,
-      vendor_id: cart[0]?.item?.vendorId || 1, // Assume one vendor per order for MVP
+      student_id: String(studentId),
+      vendor_id: dbVendorId,
       items: cart.map(({ item, qty }) => ({ name: item.name, quantity: qty, price: item.price })),
       pickup_slot: timeSlot,
       is_express: express

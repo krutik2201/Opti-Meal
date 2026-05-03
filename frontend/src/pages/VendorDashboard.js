@@ -19,7 +19,8 @@ function VendorDashboard({ auth, onLogout }) {
   const [time, setTime] = useState(new Date());
   const [kitchenMode, setKitchenMode] = useState(false);
   
-  const vendorId = auth?.vendorId || 1; // Default to 1 for demo
+  const [vendorId, setVendorId] = useState(auth?.vendorId || 1); 
+  const vendorMap = { 1: 'Main Canteen', 2: 'Campus Café', 3: 'Juice Center', 4: 'Spice Route' };
 
   const fetchOrders = async () => {
     try {
@@ -38,7 +39,7 @@ function VendorDashboard({ auth, onLogout }) {
     const t = setInterval(() => setTime(new Date()), 1000);
     const poller = setInterval(fetchOrders, 5000);
     return () => { clearInterval(t); clearInterval(poller); };
-  }, []);
+  }, [vendorId]);
 
   const handleAction = async (id, currentStatus) => {
     const nextStatus = STATUS_CONFIG[currentStatus].next;
@@ -91,8 +92,16 @@ function VendorDashboard({ auth, onLogout }) {
           <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', padding:'0.6rem', marginTop:'0.5rem' }}>
             <div style={{ width:28, height:28, borderRadius:'50%', background:'var(--accent)', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, color:'#000', fontSize:'0.7rem' }}>V</div>
             <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:'0.78rem', fontWeight:700, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{auth?.userName || 'Vendor'}</div>
-              <div style={{ fontSize:'0.6rem', color:'var(--text-muted)' }}>Main Canteen</div>
+              <div style={{ fontSize:'0.78rem', fontWeight:700, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:'0.2rem' }}>{auth?.userName || 'Vendor'}</div>
+              <select 
+                value={vendorId} 
+                onChange={(e) => setVendorId(Number(e.target.value))}
+                style={{ width: '100%', fontSize: '0.65rem', background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2px' }}
+              >
+                {Object.entries(vendorMap).map(([id, name]) => (
+                  <option key={id} value={id} style={{ background: '#0f172a' }}>{name}</option>
+                ))}
+              </select>
             </div>
           </div>
           <button onClick={onLogout} style={{ width:'100%', marginTop:'0.5rem', background:'none', border:'1px solid var(--border)', color:'var(--red)', padding:'0.45rem', borderRadius:8, cursor:'pointer', fontWeight:700, fontSize:'0.72rem' }}>Logout</button>
